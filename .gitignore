@@ -38,3 +38,5 @@ obj/
 *.depend
 *.cbp
 
+*~
+*.swp
