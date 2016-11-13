@@ -40,3 +40,9 @@ obj/
 
 *~
 *.swp
+Debug/
+*.sln
+*.filters
+*.VC.db
+*.suo
+*.vcxproj

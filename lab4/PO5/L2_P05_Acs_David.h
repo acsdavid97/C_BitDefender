@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 typedef struct MultimeTag {
-	int length;
+	int lungime;
 	int *elemente;
 }MultimeT;
 
