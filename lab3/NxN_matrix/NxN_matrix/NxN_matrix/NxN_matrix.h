@@ -25,5 +25,6 @@ int sum_of_elements_row(int row, NmatrixT* nmatrix);
 int sum_of_elements_column(int column, NmatrixT *nmatrix);
 int sum_of_elements_first_diagonal(NmatrixT *nmatrix);
 int sum_of_elements_second_diagonal(NmatrixT *nmatrix);
+int sum_of_ring(int ring, NmatrixT *nmatrix);
 
 #endif

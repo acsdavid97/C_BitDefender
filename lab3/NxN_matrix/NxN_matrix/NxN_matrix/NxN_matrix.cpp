@@ -7,6 +7,7 @@ file creation date: 2016-11-21
 
 #include "NxN_matrix.h"
 
+// creates a matrix from int** and n
 NmatrixT* createMatrix(int n, int **matrix)
 {
 	NmatrixT* nmatrix = (NmatrixT*)malloc(sizeof(NmatrixT));
@@ -15,6 +16,7 @@ NmatrixT* createMatrix(int n, int **matrix)
 	return nmatrix;
 }
 
+//reads a matrix from the keyboard and returns a pointer to Nmatrix
 NmatrixT* read_matrix()
 {
 	int n = 0;
@@ -33,6 +35,7 @@ NmatrixT* read_matrix()
 	return createMatrix(n, matrix);
 }
 
+//prints a matrix to stdout
 void print_matrix(NmatrixT* nmatrix)
 {
 	printf("size of the matrix is: %d\n", nmatrix->n);
@@ -47,6 +50,7 @@ void print_matrix(NmatrixT* nmatrix)
 	}
 }
 
+//calulates the sum of elements on a row
 int sum_of_elements_row(int row, NmatrixT *nmatrix)
 {
 	int sum = 0;
@@ -59,6 +63,7 @@ int sum_of_elements_row(int row, NmatrixT *nmatrix)
 	return sum;
 }
 
+//calulates the sum of elements on a column
 int sum_of_elements_column(int column, NmatrixT *nmatrix)
 {
 	int sum = 0;
@@ -72,6 +77,7 @@ int sum_of_elements_column(int column, NmatrixT *nmatrix)
 }
 
 
+//calulates the sum of elements on the first diagonal
 int sum_of_elements_first_diagonal(NmatrixT *nmatrix)
 {
 	int sum = 0;
@@ -84,6 +90,7 @@ int sum_of_elements_first_diagonal(NmatrixT *nmatrix)
 	return sum;
 }
 
+//calulates the sum of elements on the second diagonal
 int sum_of_elements_second_diagonal(NmatrixT *nmatrix)
 {
 	int sum = 0;
@@ -92,6 +99,25 @@ int sum_of_elements_second_diagonal(NmatrixT *nmatrix)
 	{
 		sum += *(*(nmatrix->matrix + i) + nmatrix->n - i - 1);
 	}
+
+	return sum;
+}
+
+//calculates the sum of elements on a ring
+int sum_of_ring(int ring, NmatrixT *nmatrix)
+{
+	int sum = 0;
+	for (int i = ring; i < nmatrix->n - ring; i++)
+	{
+		sum += *(*(nmatrix->matrix + ring) + i);
+		sum += *(*(nmatrix->matrix + nmatrix->n - ring -1) + i);
+		sum += *(*(nmatrix->matrix + i) + ring);
+		sum += *(*(nmatrix->matrix + i) + nmatrix->n - ring - 1);
+	}
+	sum -= *(*(nmatrix->matrix + ring) + ring);
+	sum -= *(*(nmatrix->matrix + ring) + nmatrix->n - ring - 1);
+	sum -= *(*(nmatrix->matrix + nmatrix->n - ring - 1) + ring);
+	sum -= *(*(nmatrix->matrix + nmatrix->n - ring - 1) + nmatrix->n - ring -1 );
 
 	return sum;
 }

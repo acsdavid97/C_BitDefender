@@ -24,6 +24,10 @@ int main()
 	{
 		printf("column%d: sum of elemtents: %d\n", i, sum_of_elements_column(i, myNmatrix));
 	}
+	for (int i = 0; i < myNmatrix->n/2; i++)
+	{
+		printf("ringsum%d: %d\n", i, sum_of_ring(i, myNmatrix));
+	}
 
 	printf("sum of elements of the first diagonal: %d\n", sum_of_elements_first_diagonal(myNmatrix));
 	printf("sum of elements of the second diagonal: %d\n", sum_of_elements_second_diagonal(myNmatrix));

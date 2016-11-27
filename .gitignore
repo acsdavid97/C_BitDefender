@@ -46,3 +46,4 @@ Debug/
 *.VC.db
 *.suo
 *.vcxproj
+*.opendb

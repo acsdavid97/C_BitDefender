@@ -1,5 +1,6 @@
 #include "L2_P07_Acs_David.h"
 
+
 VectorT citire_tastatura()
 {
 	printf("numerul elementelor: ");
