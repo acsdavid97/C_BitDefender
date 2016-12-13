@@ -14,8 +14,16 @@ int main()
 	char * str2;
 	str2 = str1;
 	str2[0] = 'D';
-	printf("str1: '%s'\nstr2:'%s'\n", str1, str2);	char str22[] = "A string";
-	str22[0] = 'H';	printf("%s\n", str22);
+	printf("str1: '%s'\nstr2:'%s'\n", str1, str2);
+
+	char str22[] = "A string";
+	char * str3 = "new string";
+	str3 = "some sting";
+	printf("%s", str3);
+	str3[1] = 'H';
+	printf("%s\n", str22);
+
+
 	char s[] = "UnSirDeCaractere";
 	for (char *p = s; *p++; putchar((*p++)++));
 	printf("\n%s", s);
