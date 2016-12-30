@@ -224,3 +224,20 @@ int remove_node_at_index(GenericLinkedListT* list, int index)
 
 	return 0;
 }
+
+int search_element_in_list(GenericLinkedListT* list, GenericDataT* element, int(*compare)(GenericDataT* a, GenericDataT* b))
+{
+	NodeT* pWalker = list->head;
+	int i = 0;
+	while (pWalker != NULL)
+	{
+		if (compare(pWalker->data, element) == 0)
+		{
+			return i;
+		}
+		i++;
+		pWalker = pWalker->next;
+	}
+
+	return -1;
+}
