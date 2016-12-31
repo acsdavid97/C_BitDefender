@@ -91,4 +91,17 @@ void qsort_elements_in_array(GenericArrayT* array, int(*compare)(const void* a, 
 */
 void delete_elements_in_array(GenericArrayT* array, void(*free_generic_data)(void* generic_data));
 
+/*
+	Merges two arrays. After a successful operation the source array can no longer access it's element,
+	needed to avoid data corruption(E.g.: Merge A and B, Delete B. A loses it's elements from B)
+
+	@param array_destination: array where the merged array will be found after a successful operation.
+
+	@param array_source: array from where data will be appened to array_destination. Should be freed after this operation.
+
+	@return SUCCESS: operation successful.
+	@return MEMORY_ALLOCATION_ERROR: array_destination could not be resized, everything remains as it was.
+*/
+ReturnCodeE merge_arrays(GenericArrayT* array_destination, GenericArrayT* array_source);
+
 #endif

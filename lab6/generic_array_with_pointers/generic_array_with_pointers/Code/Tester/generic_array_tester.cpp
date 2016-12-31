@@ -94,10 +94,10 @@ void print_error(ErrorCodeE error_code, FILE* file,const char* message)
 			fprintf(file, "Error: Missing value\n");
 			break;
 		case INDEX_OUT_OF_BOUNDS:
-			fprintf(file, "Error: Index '%s' out of bounds\n", message);
+			fprintf(file, "Error: Index out of bounds\n");
 			break;
 		case UNRECOGNIZED_HASH_FUNCTION:
-			fprintf(file, "Error: Unrecognized hash function: %s\n", message);
+			fprintf(file, "Error: Unrecognized hash function\n");
 			break;
 		case MEMORY_ALLOCATION_FAILED:
 			fprintf(file, "Error: Memory allocation failed\n");
@@ -273,8 +273,7 @@ void DeleteVectorItem(GenericArrayT* array_instance, IOFilesT* files, void(*free
 	
 }
 
-void SortVector(GenericArrayT* array_instance, IOFilesT* files, 
-	int(*compare)(const void* a, const void* b), void* (*read_and_create_generic_data)(FILE* file))
+void SortVector(GenericArrayT* array_instance, IOFilesT* files, int(*compare)(const void* a, const void* b)) 
 {
 	qsort_elements_in_array(array_instance, compare);
 }
@@ -287,7 +286,7 @@ void SearchVectorItem(GenericArrayT* array_instance, IOFilesT* files,
 
 	if (index == -1)
 	{
-		print_error(INDEX_OUT_OF_BOUNDS, files->input, NULL);
+		print_error(ITEM_NOT_FOUND, files->input, NULL);
 		return;
 	}
 
@@ -297,6 +296,74 @@ void SearchVectorItem(GenericArrayT* array_instance, IOFilesT* files,
 void DeleteVector(GenericArrayT** array_instance, IOFilesT* files, void(*free_generic_data)(void* generic_data))
 {
 	delete_elements_in_array(*array_instance, free_generic_data);
+}
+
+void MergeVectors(GenericArrayT** array_destination, GenericArrayT** array_source, IOFilesT* files)
+{
+	ReturnCodeE return_code = merge_arrays(*array_destination, *array_source);
+
+	switch (return_code)
+	{
+	case SUCCESS:
+		//do nothing
+		break;
+	case MEMORY_ALLOCATION_ERROR:
+		print_error(MEMORY_ALLOCATION_FAILED, files->output, NULL);
+	default:
+		print_error(UNKNOWN_ERROR_OCCURED, files->output, NULL);
+		break;
+	}
+
+}
+
+PossibleCommandsE get_command(char* command)
+{
+		if (strcmp(command, "CreateVector") == 0)
+		{
+			return CREATE_VECTOR;
+		}
+		else if (strcmp(command, "PrintVector") == 0)
+		{
+			return PRINT_VECTOR;
+		}
+		else if (strcmp(command, "AddVectorItems") == 0)
+		{
+			return ADD_VECTOR_ITEMS;
+		}
+		else if (strcmp(command, "PutVectorItem") == 0)
+		{
+			return PUT_VECTOR_ITEM;
+		}
+		else if (strcmp(command, "GetVectorItem") == 0)
+		{
+			return GET_VECTOR_ITEM;
+		}
+		else if (strcmp(command, "DeleteVectorItem") == 0)
+		{
+			return DELETE_VECTOR_ITEM;
+		}
+		else if (strcmp(command, "SearchVectorItem") == 0)
+		{
+			return SEARCH_VECTOR_ITEM;
+		}
+		else if (strcmp(command, "SortVector") == 0)
+		{
+			return SORT_VECTOR;
+		}
+		else if (strcmp(command, "MergeVectors") == 0)
+		{
+			return MERGE_VECTORS;
+		}
+		else if (strcmp(command, "DeleteVector") == 0)
+		{
+			return DELETE_VECTOR;
+		}
+		else
+		{
+			return UNKOWN_COMMAND;
+		}
+
+
 }
 
 void test_generic_array(IOFilesT* files)
@@ -313,11 +380,18 @@ void test_generic_array(IOFilesT* files)
 	char buffer[BUFFER_SIZE];
 	while (fgets(buffer, BUFFER_SIZE, files->input))
 	{
-		char* command = strtok(buffer, " \n");
+		char* command_string = strtok(buffer, " \n");
 
 		//line with spaces or just a new line, so we can skip it
-		if (command == NULL)
+		if (command_string == NULL)
 		{
+			continue;
+		}
+
+		PossibleCommandsE command = get_command(command_string);
+		if (command == UNKOWN_COMMAND)
+		{
+			print_error(UNRECOGNIZED_COMMAND, files->output, command_string);
 			continue;
 		}
 
@@ -325,59 +399,77 @@ void test_generic_array(IOFilesT* files)
 		GenericArrayT** array_instance = get_generic_array(arrays, first_instance, files->output);
 
 		if (array_instance == NULL || 
-			(*array_instance == NULL && strcmp(command, "CreateVector") != 0))
+			(*array_instance == NULL && command != CREATE_VECTOR))
 		{
 			//instance does not correspond to a valid data structure
 			//or instance is not yet created
 			print_error(DATA_STRUCTURE_INEXISTENT, files->output, first_instance);
 			continue;
 		}
-
-		//gigantic string comparator else-if ladder
-		if (strcmp(command, "CreateVector") == 0)
+		switch (command)
 		{
+		case CREATE_VECTOR:
+			printf("CreateVector\n");
 			CreateVector(array_instance, files);
-		}
-		else if (strcmp(command, "PrintVector") == 0)
-		{
+			break;
+		case PRINT_VECTOR:
+			printf("PrintVector\n");
 			PrintVector(*array_instance, files, print_GenericDataT);
-		}
-		else if (strcmp(command, "AddVectorItems") == 0)
-		{
+			break;
+		case ADD_VECTOR_ITEMS:
+			printf("AddVectorItems\n");
 			AddVectorItems(*array_instance, files, read_and_create_GenericDataT);
-		}
-		else if (strcmp(command, "PutVectorItem") == 0)
-		{
+			break;
+		case PUT_VECTOR_ITEM:
+			printf("PutVectorItem\n");
 			PutVectorItem(*array_instance, files, read_and_create_GenericDataT);
-		}
-		else if (strcmp(command, "GetVectorItem") == 0)
-		{
+			break;
+		case GET_VECTOR_ITEM:
+			printf("GetVectorItem\n");
 			GetVectorItem(*array_instance, files, print_GenericDataT);
-		}
-		else if (strcmp(command, "DeleteVectorItem") == 0)
-		{
+			break;
+		case DELETE_VECTOR_ITEM:
+			printf("DeleteVectorItem\n");
 			DeleteVectorItem(*array_instance, files, free_GenericDataT);
-		}
-		else if (strcmp(command, "SearchVectorItem") == 0)
-		{
+			break;
+		case SEARCH_VECTOR_ITEM:
+			printf("SearchVectorItem\n");
 			SearchVectorItem(*array_instance, files, compare_GenericDataT, read_and_create_GenericDataT);
+			break;
+		case SORT_VECTOR:
+			printf("SortVector\n");
+			SortVector(*array_instance, files, compare_GenericDataT);
+			break;
+		case MERGE_VECTORS:
+		{
+			printf("MergeVectors\n");
+			char* second_instance = strtok(NULL, " \n");
+			GenericArrayT** array_instance2 = get_generic_array(arrays, second_instance, files->output);
 
+			if (array_instance2 == NULL || *array_instance2 == NULL)
+			{
+				//instance does not correspond to a valid data structure
+				//or instance is not yet created
+				print_error(DATA_STRUCTURE_INEXISTENT, files->output, first_instance);
+				continue;
+			}
+			MergeVectors(array_instance, array_instance2, files);
+			free(*array_instance2);
+			*array_instance2 = NULL;
+			break;
 		}
-		else if (strcmp(command, "SortVector") == 0)
-		{
-			SortVector(*array_instance, files, compare_GenericDataT, read_and_create_GenericDataT);
-		}
-		else if (strcmp(command, "MergeVectors") == 0)
-		{
-
-		}
-		else if (strcmp(command, "DeleteVector") == 0)
-		{
+		case DELETE_VECTOR:
+			printf("DeleteVector\n");
 			DeleteVector(array_instance, files, free_GenericDataT);
-		}
-		else
-		{
-			print_error(UNRECOGNIZED_COMMAND, files->output, command);
+			break;
+		case UNKOWN_COMMAND:
+			printf("Unknown command\n");
+			break;
+		default:
+			printf("What?\n");
+			fprintf(files->output, "WHaAaAaT?\n");
+			exit(42); // the answer to life the universe and everything
+			break;
 		}
 
 	}

@@ -6,6 +6,7 @@ file creation date: 2016-12-18 19:48:52
 */
 
 #include "generic_array.h"
+#include "../Tester/generic_data.h"
 
 const int STARTING_ARRAY_SIZE = 16;
 
@@ -101,7 +102,7 @@ int search_element_in_array(GenericArrayT* array, void* element, int (*compare)(
 	for(int i = 0; i < array->length; i++)
 	{
 		//compare element with ith element in array
-		if (compare(*(array->data + i), element) == 0)
+		if (compare(array->data + i, &element) == 0)
 			return i;
 	}
 	return -1;
@@ -113,6 +114,8 @@ void print_elements_in_array(GenericArrayT* array, FILE* file, void(*print_eleme
 	{
 		print_element(*(array->data + i), file);
 	}
+
+	fprintf(file, "\n");
 }
 
 void qsort_elements_in_array(GenericArrayT* array, int(*compare)(const void* a, const void* b))
@@ -131,4 +134,30 @@ void delete_elements_in_array(GenericArrayT* array, void(*free_generic_data)(voi
 	free(array->data);
 	array->length = 0;
 	array->size = 0;
+}
+
+ReturnCodeE merge_arrays(GenericArrayT* array_destination, GenericArrayT* array_source)
+{
+	int dest_length = array_destination->length + array_source->length;
+	void** tmp = (void**)realloc(array_destination->data, sizeof(void*) * (dest_length + 1));
+	if (tmp == NULL)
+	{
+		return MEMORY_ALLOCATION_ERROR;
+	}
+	array_destination->data = tmp;
+
+	for (int i = array_destination->length; i < dest_length; i++)
+	{
+		*(array_destination->data + i) = *(array_source->data - array_destination->length + i);
+	}
+
+	//source can no longer access the elements, needed to avoid data corruption.
+	free(array_source->data);
+	array_source->length = 0;
+	array_source->size = 0;
+
+	array_destination->length = dest_length;
+	array_destination->size = dest_length + 1;
+
+	return SUCCESS;
 }

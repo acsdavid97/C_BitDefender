@@ -6,6 +6,48 @@ file creation date: 2016-12-18 19:48:35
 */
 
 #include "generic_array_tester.h"
+#include "dirent.h"
+//NOTE: I did not found a cross-platform solution, on Windows you should copy dirent.h to the include folders.
+// Follow this link for more info: https://github.com/tronkko/dirent
+
+void runall(const char* dirname)
+{
+		// Open directory stream.
+		DIR* dir = opendir(dirname);
+		if (dir != NULL) {
+
+			struct dirent *ent;
+			// Iterate through all files and directories within the directory.
+			while ((ent = readdir(dir)) != NULL) 
+			{
+				// If it's a file
+				if (ent->d_type == DT_REG)
+				{
+					// Suppose only one dot in filename, right before the extension.
+					// Suppose only files with .in extention are in the folder.
+					char* file_name = strtok(ent->d_name, ".");
+					IOFilesT* files = create_IOFilesT(file_name);
+
+					// Skip if one of the files could not be opened.
+					if (files == NULL)
+					{
+						printf("skipping %s !\n", file_name);
+						continue;
+					}
+
+					test_generic_array(files);
+					close_IOFiles(files);
+					free(files);
+				}
+			}
+
+			closedir(dir);
+		}
+		else {
+			// Could not open directory.
+			printf("Cannot open directory %s\n", dirname);
+		}
+}
 
 int main(int argc, char* args[])
 {
@@ -20,18 +62,19 @@ int main(int argc, char* args[])
 		exit(1);
 	}
 
-	//NOTE: discards all other command line arguments
+	//NOTE: Discards all other command line arguments.
 	if (strcmp(args[1], "runall") == 0)
 	{
-		//TODO: impement runall
-		printf("run all input files\n");
+		printf("running all input files!\n");
+		runall("Input/");
+		system("pause");
 		exit(0);
 	}
 	for (int i = 1; i < argc; i++)
 	{
 		IOFilesT* files = create_IOFilesT(args[i]);
 
-		//skip if one files could not be opened
+		// Skip if one of the files could not be opened.
 		if (files == NULL)
 		{
 			printf("skipping %s !\n", args[i]);
