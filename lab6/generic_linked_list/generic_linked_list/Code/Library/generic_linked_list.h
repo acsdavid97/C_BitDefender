@@ -67,9 +67,9 @@ ReturnCodeE add_node_at_index(GenericLinkedListT* list, NodeT* node_to_insert, i
 void print_linked_list(GenericLinkedListT* list, FILE* file, void(*print_data)(const void* data, FILE* file));
 
 /*
-	Returns element at the index specifed.
+	Returns node at the index specifed.
 
-	@return: pointer to the element, if index is out of bounds, returns NULL.
+	@return: pointer to the node, if index is out of bounds, returns NULL.
 */
 NodeT* get_node_at_index(GenericLinkedListT* list, int index);
 
@@ -106,6 +106,16 @@ ReturnCodeE remove_node_at_index(GenericLinkedListT* list, int index);
 	@return: element found, otherwise NULL.
 */
 void* search_element_in_list(GenericLinkedListT* list, void* element, int(*compare)(const void* a, const void *b));
+
+/*
+	Searches for element in list, with the help of the function compare.
+	If the element is found, it will be deleted and returned.
+
+	@param compare: a pointer to a function which can compare two elements.
+
+	@return: element found, otherwise NULL.
+*/
+void* search_and_delete_element_in_list(GenericLinkedListT* list, void* element, int(*compare)(const void* a, const void *b));
 
 /*
 	Sorts elements in the linked list, with the help of the function compare

@@ -26,7 +26,7 @@ void print_GenericDataT(const void* generic_data, FILE* file)
 
 int compare_GenericDataT(const void* a, const void* b)
 {
-	return (*(GenericDataT**)a)->number - (*(GenericDataT**)b)->number;
+	return ((GenericDataT*)a)->number - ((GenericDataT*)b)->number;
 }
 
 void* read_and_create_GenericDataT(FILE* file)

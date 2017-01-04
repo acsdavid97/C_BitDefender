@@ -61,7 +61,8 @@ int main(int argc, char* args[])
 		printf("tester.exe <test_file_number> -- runs test file test_file_number.in, outputs to test_file_number.out\n");
 		printf("tester.exe <test_file_number1> <test_file_number2> -- runs test file test_file_number1.in and test_file_number2.in, outputs to test_file_number1.out and test_file_number2.out\n");
 		printf("tester.exe runall -- runs all the test files in the input folder and creates for each of them a corresponding output file\n");
-		printf("exiting...");
+		printf("exiting...\n");
+		system("pause");
 		exit(1);
 	}
 

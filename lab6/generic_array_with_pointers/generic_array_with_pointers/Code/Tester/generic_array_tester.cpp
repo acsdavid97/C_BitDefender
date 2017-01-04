@@ -77,15 +77,12 @@ int copy_files(IOFilesT* files)
 	return 1;
 }
 
-void print_error(ErrorCodeE error_code, FILE* file,const char* message)
+void print_error(ErrorCodeE error_code, FILE* file)
 {
 	switch (error_code)
 	{
 		case DATA_STRUCTURE_INEXISTENT:
 			fprintf(file, "Error: Illegal operation. Data structure does not exist\n");
-			break;
-		case UNRECOGNIZED_COMMAND:
-			fprintf(file, "Error: Unrecognized command: '%s'", message);
 			break;
 		case TYPE_MISMATCH:
 			fprintf(file, "Error: Type mismatch\n");
@@ -127,12 +124,13 @@ GenericArrayT** get_generic_array(GenericArrayT** arrays, char* instance, FILE* 
 {
 	if (instance == NULL)
 	{
-		print_error(INSTANCE_UNKNOWN, file, NULL);
+		print_error(INSTANCE_UNKNOWN, file);
 		return NULL;
 	}
 
 	char letter = instance[0];
 
+	// check if it's valid
 	if (strlen(instance) != 1 || letter < 'A' || letter > 'Z')
 	{
 		return NULL;
@@ -150,13 +148,13 @@ void add_element_at_index_with_errors(GenericArrayT* array, void* element, int i
 		//do nothing
 		break;
 	case MEMORY_ALLOCATION_ERROR:
-		print_error(MEMORY_ALLOCATION_FAILED, file, NULL);
+		print_error(MEMORY_ALLOCATION_FAILED, file);
 		break;
 	case INCORRECT_INDEX:
-		print_error(INDEX_OUT_OF_BOUNDS, file, NULL);
+		print_error(INDEX_OUT_OF_BOUNDS, file);
 		break;
 	default:
-		print_error(UNKNOWN_ERROR_OCCURED, file, NULL);
+		print_error(UNKNOWN_ERROR_OCCURED, file);
 		break;
 	}
 }
@@ -171,10 +169,10 @@ void delete_element_at_index_with_errors(GenericArrayT* array, int index, FILE* 
 		//do nothing
 		break;
 	case INCORRECT_INDEX:
-		print_error(INDEX_OUT_OF_BOUNDS, file, NULL);
+		print_error(INDEX_OUT_OF_BOUNDS, file);
 		break;
 	default:
-		print_error(UNKNOWN_ERROR_OCCURED, file, NULL);
+		print_error(UNKNOWN_ERROR_OCCURED, file);
 		break;
 	}
 
@@ -186,7 +184,7 @@ void CreateVector(GenericArrayT** array_instance, IOFilesT* files)
 
 	if (*array_instance == NULL)
 	{
-		print_error(MEMORY_ALLOCATION_FAILED, files->output, NULL);
+		print_error(MEMORY_ALLOCATION_FAILED, files->output);
 	}
 }
 //TODO add functions
@@ -196,7 +194,7 @@ void PrintVector(GenericArrayT* array_instance, IOFilesT* files,
 	if (array_instance->length <= 0)
 	{
 		//data structure empty
-		print_error(STRUCTURE_IS_EMPTY, files->output, NULL);
+		print_error(STRUCTURE_IS_EMPTY, files->output);
 		return;
 	}
 
@@ -218,7 +216,7 @@ void AddVectorItems(GenericArrayT* array_instance, IOFilesT* files, void* (*read
 	else
 	{
 		//could not read nr_of_elements, maybe it's missing?
-		print_error(MISSING_VALUE, files->output, NULL);
+		print_error(MISSING_VALUE, files->output);
 	}
 
 }
@@ -233,7 +231,7 @@ void PutVectorItem(GenericArrayT* array_instance, IOFilesT* files, void* (*read_
 	else
 	{
 		//could not read index, maybe it's missing?
-		print_error(MISSING_VALUE, files->output, NULL);
+		print_error(MISSING_VALUE, files->output);
 	}
 }
 
@@ -245,7 +243,7 @@ void GetVectorItem(GenericArrayT* array_instance, IOFilesT* files, void (*print_
 		void* element = get_element_at_index(array_instance, index);
 		if (element == NULL)
 		{
-			print_error(INDEX_OUT_OF_BOUNDS, files->output, NULL);
+			print_error(INDEX_OUT_OF_BOUNDS, files->output);
 			return;
 		}
 		print_element(element, files->output);
@@ -254,7 +252,7 @@ void GetVectorItem(GenericArrayT* array_instance, IOFilesT* files, void (*print_
 	else
 	{
 		//could not read index, maybe it's missing?
-		print_error(MISSING_VALUE, files->output, NULL);
+		print_error(MISSING_VALUE, files->output);
 	}
 }
 
@@ -268,7 +266,7 @@ void DeleteVectorItem(GenericArrayT* array_instance, IOFilesT* files, void(*free
 	else
 	{
 		//could not read index, maybe it's missing?
-		print_error(MISSING_VALUE, files->output, NULL);
+		print_error(MISSING_VALUE, files->output);
 	}
 	
 }
@@ -286,7 +284,7 @@ void SearchVectorItem(GenericArrayT* array_instance, IOFilesT* files,
 
 	if (index == -1)
 	{
-		print_error(ITEM_NOT_FOUND, files->input, NULL);
+		print_error(ITEM_NOT_FOUND, files->input);
 		return;
 	}
 
@@ -296,6 +294,8 @@ void SearchVectorItem(GenericArrayT* array_instance, IOFilesT* files,
 void DeleteVector(GenericArrayT** array_instance, IOFilesT* files, void(*free_generic_data)(void* generic_data))
 {
 	delete_elements_in_array(*array_instance, free_generic_data);
+	free(*array_instance);
+	*array_instance = NULL;
 }
 
 void MergeVectors(GenericArrayT** array_destination, GenericArrayT** array_source, IOFilesT* files)
@@ -308,9 +308,9 @@ void MergeVectors(GenericArrayT** array_destination, GenericArrayT** array_sourc
 		//do nothing
 		break;
 	case MEMORY_ALLOCATION_ERROR:
-		print_error(MEMORY_ALLOCATION_FAILED, files->output, NULL);
+		print_error(MEMORY_ALLOCATION_FAILED, files->output);
 	default:
-		print_error(UNKNOWN_ERROR_OCCURED, files->output, NULL);
+		print_error(UNKNOWN_ERROR_OCCURED, files->output);
 		break;
 	}
 
@@ -391,7 +391,7 @@ void test_generic_array(IOFilesT* files)
 		PossibleCommandsE command = get_command(command_string);
 		if (command == UNKOWN_COMMAND)
 		{
-			print_error(UNRECOGNIZED_COMMAND, files->output, command_string);
+			fprintf(files->output, "Error: Unrecognized command: %s\n", command_string);
 			continue;
 		}
 
@@ -403,7 +403,7 @@ void test_generic_array(IOFilesT* files)
 		{
 			//instance does not correspond to a valid data structure
 			//or instance is not yet created
-			print_error(DATA_STRUCTURE_INEXISTENT, files->output, first_instance);
+			print_error(DATA_STRUCTURE_INEXISTENT, files->output);
 			continue;
 		}
 		switch (command)
@@ -450,7 +450,7 @@ void test_generic_array(IOFilesT* files)
 			{
 				//instance does not correspond to a valid data structure
 				//or instance is not yet created
-				print_error(DATA_STRUCTURE_INEXISTENT, files->output, first_instance);
+				print_error(DATA_STRUCTURE_INEXISTENT, files->output);
 				continue;
 			}
 			MergeVectors(array_instance, array_instance2, files);

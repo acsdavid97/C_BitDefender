@@ -122,6 +122,7 @@ void print_linked_list(GenericLinkedListT* list, FILE* file, void (*print_data)(
 		print_data(pWalker->data, file);
 		pWalker = pWalker->next;
 	}
+	fprintf(file, "\n");
 }
 
 NodeT* get_node_at_index(GenericLinkedListT* list, int index)
@@ -151,7 +152,6 @@ ReturnCodeE remove_node_from_end(GenericLinkedListT* list)
 	//if head is the only node
 	if (list->head->next == NULL)
 	{
-		free(list->head->data);
 		free(list->head);
 		list->head = list->tail = NULL;
 		list->length = 0;
@@ -186,7 +186,6 @@ ReturnCodeE remove_node_from_beginning(GenericLinkedListT* list)
 	NodeT* head = list->head;
 	list->head = list->head->next;
 
-	free(head->data);
 	free(head);
 	list->length--;
 
@@ -223,7 +222,6 @@ ReturnCodeE remove_node_at_index(GenericLinkedListT* list, int index)
 		{
 			NodeT* to_delete = pWalker->next;
 			pWalker->next = pWalker->next->next;
-			free(to_delete->data);
 			free(to_delete);
 			list->length--;
 
@@ -245,6 +243,40 @@ void* search_element_in_list(GenericLinkedListT* list, void* element, int(*compa
 		{
 			return pWalker->data;
 		}
+		pWalker = pWalker->next;
+	}
+
+	return NULL;
+}
+
+void* search_and_delete_element_in_list(GenericLinkedListT* list, void* element, int(*compare)(const void* a, const void *b))
+{
+	if (list->head == NULL)
+	{
+		return NULL;
+	}
+
+	if (compare(list->head->data, element) == 0)
+	{
+		void* element = list->head->data;
+		remove_node_from_beginning(list);
+
+		return element;
+	}
+
+	NodeT* pWalker = list->head;
+	while (pWalker->next != NULL)
+	{
+		if (compare(pWalker->next->data, element) == 0)
+		{
+			void* element = pWalker->next->data;
+			pWalker->next = pWalker->next->next;
+			free(pWalker->next);
+			list->length--;
+
+			return element;
+		}
+		pWalker = pWalker->next;
 	}
 
 	return NULL;
@@ -255,7 +287,7 @@ void sort_elements_in_list(GenericLinkedListT* list, int(*compare)(const void* a
 	// Bubble sort, since we do not have random access.
 	for (NodeT* pWalker1 = list->head; pWalker1->next != NULL; pWalker1 = pWalker1->next)
 	{
-		for (NodeT* pWalker2 = pWalker1->next; pWalker2->next != NULL; pWalker2 = pWalker2->next)
+		for (NodeT* pWalker2 = pWalker1->next; pWalker2 != NULL; pWalker2 = pWalker2->next)
 		{
 			if (compare(pWalker1->data, pWalker2->data) > 0)
 			{

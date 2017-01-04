@@ -91,7 +91,7 @@ void qsort_elements_in_array(GenericArrayT* array, int(*compare)(const void* a, 
 void delete_elements_in_array(GenericArrayT* array, void(*free_generic_data)(void* generic_data));
 
 /*
-	Merges two arrays. After a successful operation the source array can no longer access it's element,
+	Merges two arrays. After a successful operation the source array can no longer access it's elements,
 	needed to avoid data corruption(E.g.: Merge A and B, Delete B. A loses it's elements from B)
 
 	@param array_destination: array where the merged array will be found after a successful operation.
