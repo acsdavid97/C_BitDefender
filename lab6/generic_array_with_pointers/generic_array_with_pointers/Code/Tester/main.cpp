@@ -15,41 +15,41 @@ Follow this link for more info: https://github.com/tronkko/dirent
 
 void runall(const char* dirname)
 {
-		// Open directory stream.
-		DIR* dir = opendir(dirname);
-		if (dir != NULL) {
+	// Open directory stream.
+	DIR* dir = opendir(dirname);
+	if (dir != NULL) {
 
-			struct dirent *ent;
-			// Iterate through all files and directories within the directory.
-			while ((ent = readdir(dir)) != NULL) 
+		struct dirent *ent;
+		// Iterate through all files and directories within the directory.
+		while ((ent = readdir(dir)) != NULL) 
+		{
+			// If it's a file
+			if (ent->d_type == DT_REG)
 			{
-				// If it's a file
-				if (ent->d_type == DT_REG)
+				// Suppose only one dot in filename, right before the extension.
+				// Suppose only files with .in extention are in the folder.
+				char* file_name = strtok(ent->d_name, ".");
+				IOFilesT* files = create_IOFilesT(file_name);
+
+				// Skip if one of the files could not be opened.
+				if (files == NULL)
 				{
-					// Suppose only one dot in filename, right before the extension.
-					// Suppose only files with .in extention are in the folder.
-					char* file_name = strtok(ent->d_name, ".");
-					IOFilesT* files = create_IOFilesT(file_name);
-
-					// Skip if one of the files could not be opened.
-					if (files == NULL)
-					{
-						printf("skipping %s !\n", file_name);
-						continue;
-					}
-
-					test_generic_array(files);
-					close_IOFiles(files);
-					free(files);
+					printf("skipping %s !\n", file_name);
+					continue;
 				}
-			}
 
-			closedir(dir);
+				test_generic_array(files);
+				close_IOFiles(files);
+				free(files);
+			}
 		}
-		else {
-			// Could not open directory.
-			printf("Cannot open directory %s\n", dirname);
-		}
+
+		closedir(dir);
+	}
+	else {
+		// Could not open directory.
+		printf("Cannot open directory %s\n", dirname);
+	}
 }
 
 int main(int argc, char* args[])

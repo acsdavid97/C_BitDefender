@@ -232,10 +232,10 @@ void GetLinkedListItem(GenericLinkedListT* list_instance, IOFilesT* files,
 	}
 }
 
-void DeleteLinkedListItem(GenericLinkedListT* list_instance, IOFilesT* files, 
+void DeleteLinkedListItem(GenericLinkedListT* list_instance, IOFilesT* files, void* (*read_and_create_data)(FILE* file), 
 	int(*compare)(const void* a, const void *b), void(*print_data)(const void* data, FILE* file))
 {
-	void* data = read_and_create_GenericDataT(files->input);
+	void* data = read_and_create_data(files->input);
 	void* element = search_and_delete_element_in_list(list_instance, data, compare);
 
 	if (element == NULL)
@@ -394,7 +394,8 @@ void test_generic_linked_list(IOFilesT* files)
 			break;
 		case DELETE_LINKED_LIST_ITEM:
 			printf("DeleteLinkedListItem\n");
-			DeleteLinkedListItem(*list_instance, files, compare_GenericDataT, print_GenericDataT);
+			DeleteLinkedListItem(*list_instance, files,read_and_create_GenericDataT,
+				compare_GenericDataT, print_GenericDataT);
 			break;
 		case SEARCH_LINKED_LIST_ITEM:
 			printf("SearchLinkedListItem\n");

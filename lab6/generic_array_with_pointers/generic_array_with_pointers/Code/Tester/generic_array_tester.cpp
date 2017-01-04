@@ -318,50 +318,50 @@ void MergeVectors(GenericArrayT** array_destination, GenericArrayT** array_sourc
 
 PossibleCommandsE get_command(char* command)
 {
-		if (strcmp(command, "CreateVector") == 0)
-		{
-			return CREATE_VECTOR;
-		}
-		else if (strcmp(command, "PrintVector") == 0)
-		{
-			return PRINT_VECTOR;
-		}
-		else if (strcmp(command, "AddVectorItems") == 0)
-		{
-			return ADD_VECTOR_ITEMS;
-		}
-		else if (strcmp(command, "PutVectorItem") == 0)
-		{
-			return PUT_VECTOR_ITEM;
-		}
-		else if (strcmp(command, "GetVectorItem") == 0)
-		{
-			return GET_VECTOR_ITEM;
-		}
-		else if (strcmp(command, "DeleteVectorItem") == 0)
-		{
-			return DELETE_VECTOR_ITEM;
-		}
-		else if (strcmp(command, "SearchVectorItem") == 0)
-		{
-			return SEARCH_VECTOR_ITEM;
-		}
-		else if (strcmp(command, "SortVector") == 0)
-		{
-			return SORT_VECTOR;
-		}
-		else if (strcmp(command, "MergeVectors") == 0)
-		{
-			return MERGE_VECTORS;
-		}
-		else if (strcmp(command, "DeleteVector") == 0)
-		{
-			return DELETE_VECTOR;
-		}
-		else
-		{
-			return UNKOWN_COMMAND;
-		}
+	if (strcmp(command, "CreateVector") == 0)
+	{
+		return CREATE_VECTOR;
+	}
+	else if (strcmp(command, "PrintVector") == 0)
+	{
+		return PRINT_VECTOR;
+	}
+	else if (strcmp(command, "AddVectorItems") == 0)
+	{
+		return ADD_VECTOR_ITEMS;
+	}
+	else if (strcmp(command, "PutVectorItem") == 0)
+	{
+		return PUT_VECTOR_ITEM;
+	}
+	else if (strcmp(command, "GetVectorItem") == 0)
+	{
+		return GET_VECTOR_ITEM;
+	}
+	else if (strcmp(command, "DeleteVectorItem") == 0)
+	{
+		return DELETE_VECTOR_ITEM;
+	}
+	else if (strcmp(command, "SearchVectorItem") == 0)
+	{
+		return SEARCH_VECTOR_ITEM;
+	}
+	else if (strcmp(command, "SortVector") == 0)
+	{
+		return SORT_VECTOR;
+	}
+	else if (strcmp(command, "MergeVectors") == 0)
+	{
+		return MERGE_VECTORS;
+	}
+	else if (strcmp(command, "DeleteVector") == 0)
+	{
+		return DELETE_VECTOR;
+	}
+	else
+	{
+		return UNKOWN_COMMAND;
+	}
 
 
 }
