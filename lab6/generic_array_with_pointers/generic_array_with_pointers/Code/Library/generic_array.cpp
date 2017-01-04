@@ -1,6 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 /*
-author: David
+author: Acs David
 file name: generic_array.cpp
 file creation date: 2016-12-18 19:48:52
 */

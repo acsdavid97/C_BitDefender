@@ -14,12 +14,12 @@ GenericDataT* create_GenericDataT(int number)
 	{
 		return NULL;
 	}
-	
+
 	data->number = number;
 	return data;
 }
 
-void print_GenericDataT(const void* generic_data, FILE* file) 
+void print_GenericDataT(const void* generic_data, FILE* file)
 {
 	fprintf(file, "%d ", ((GenericDataT*)generic_data)->number);
 }
@@ -39,5 +39,5 @@ void* read_and_create_GenericDataT(FILE* file)
 void free_GenericDataT(void* generic_data_to_delete)
 {
 	return;//no need to free anything, since generic_data_to_delete contains
-	//		 only primitive types.
+		   //		 only primitive types.
 }

@@ -1,6 +1,6 @@
 /*
 author: Acs David
-file name: generic_array.cpp
+file name: generic_array.h
 file creation date: 2016-11-20 23:26:24
 */
 
@@ -18,7 +18,7 @@ typedef enum ReturnCodeEnum {
 typedef struct GenericArrayTag {
 	void** data;
 	int length; // number of elements
-	int size; // size currently allocated for the array
+	int size;	// size currently allocated for the array
 }GenericArrayT;
 
 // define your functions here
@@ -27,7 +27,6 @@ typedef struct GenericArrayTag {
 	Creates an empty generic array.
 
 	@return:  pointer to new generic array, if memory allocation failed returns NULL.
-
 */
 GenericArrayT* create_empty_GenericArrayT();
 

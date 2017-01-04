@@ -1,14 +1,17 @@
 #define _CRT_SECURE_NO_WARNINGS
 /*
-author: David
+author: Acs David
 file name: main.cpp
 file creation date: 2016-12-18 19:48:35
 */
 
 #include "generic_array_tester.h"
 #include "dirent.h"
-//NOTE: I did not found a cross-platform solution, on Windows you should copy dirent.h to the include folders.
-// Follow this link for more info: https://github.com/tronkko/dirent
+/*
+NOTE: I did not found a cross-platform solution to traverse directories.
+On Windows you should copy dirent.h to the include folders.
+Follow this link for more info: https://github.com/tronkko/dirent 
+*/
 
 void runall(const char* dirname)
 {
@@ -70,6 +73,8 @@ int main(int argc, char* args[])
 		system("pause");
 		exit(0);
 	}
+
+	//for each argument, append extensions, open files, run test.
 	for (int i = 1; i < argc; i++)
 	{
 		IOFilesT* files = create_IOFilesT(args[i]);

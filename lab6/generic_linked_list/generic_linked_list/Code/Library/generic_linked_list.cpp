@@ -8,9 +8,14 @@ file creation date: 2016-12-14 15:10:43
 
 #include "generic_linked_list.h"
 
-NodeT* create_NodeT(GenericDataT* data)
+NodeT* create_NodeT(void* data)
 {
 	NodeT* node = (NodeT*)malloc(sizeof(NodeT));
+	if (node == NULL)
+	{
+		// Memory allocation failed.
+		return NULL;
+	}
 	node->data = data;
 	node->next = NULL;
 
@@ -20,6 +25,12 @@ NodeT* create_NodeT(GenericDataT* data)
 GenericLinkedListT* create_empty_GenericLinkedListT()
 {
 	GenericLinkedListT* empty_list = (GenericLinkedListT*)malloc(sizeof(GenericLinkedListT));
+	if (empty_list == NULL)
+	{
+		// Memory allocation failed.
+		return NULL;
+	}
+
 	empty_list->head = empty_list->tail = NULL;
 	empty_list->length = 0;
 
@@ -31,7 +42,7 @@ int get_list_length(GenericLinkedListT* list)
 	return list->length;
 }
 
-int add_node_at_end(GenericLinkedListT* list, NodeT* node_to_insert)
+ReturnCodeE add_node_at_end(GenericLinkedListT* list, NodeT* node_to_insert)
 {
 	//first element to insert
 	if (list->head == NULL)
@@ -39,17 +50,17 @@ int add_node_at_end(GenericLinkedListT* list, NodeT* node_to_insert)
 		list->head = list->tail = node_to_insert;
 		list->head->next = NULL;
 		list->length = 1;
-		return 1;
+		return SUCCESS;
 	}
 
 	list->tail->next = node_to_insert;
 	list->tail = node_to_insert;
 	list->length++;
 
-	return 1;
+	return SUCCESS;
 }
 
-int add_node_at_beginning(GenericLinkedListT* list, NodeT* node_to_insert)
+ReturnCodeE add_node_at_beginning(GenericLinkedListT* list, NodeT* node_to_insert)
 {
 	if (list->head == NULL)
 	{
@@ -57,20 +68,20 @@ int add_node_at_beginning(GenericLinkedListT* list, NodeT* node_to_insert)
 		list->head->next = NULL;
 		list->length = 1;
 
-		return 1;
+		return SUCCESS;
 	}
 
 	node_to_insert->next = list->head;
 	list->head = node_to_insert;
 	list->length++;
 
-	return 1;
+	return SUCCESS;
 }
 
-int add_node_at_index(GenericLinkedListT* list, NodeT* node_to_insert, int index)
+ReturnCodeE add_node_at_index(GenericLinkedListT* list, NodeT* node_to_insert, int index)
 {
 	if (index < 0 || index > list->length)
-		return 0;
+		return INCORRECT_INDEX;
 
 	if (index == 0)
 	{
@@ -93,22 +104,22 @@ int add_node_at_index(GenericLinkedListT* list, NodeT* node_to_insert, int index
 			pWalker->next = node_to_insert;
 			list->length++;
 
-			return 1;
+			return SUCCESS;
 		}
 
 		pWalker = pWalker->next;
 		i++;
 	}
 
-	return 0;
+	return INCORRECT_INDEX;
 }
 
-void print_linked_list(GenericLinkedListT* list, void (*print_data)(GenericDataT* data))
+void print_linked_list(GenericLinkedListT* list, FILE* file, void (*print_data)(const void* data, FILE* file))
 {
 	NodeT* pWalker = list->head;
 	while (pWalker != NULL)
 	{
-		print_data(pWalker->data);
+		print_data(pWalker->data, file);
 		pWalker = pWalker->next;
 	}
 }
@@ -132,10 +143,10 @@ NodeT* get_node_at_index(GenericLinkedListT* list, int index)
 	return NULL;
 }
 
-int remove_node_from_end(GenericLinkedListT* list)
+ReturnCodeE remove_node_from_end(GenericLinkedListT* list)
 {
 	if (list->head == NULL)
-		return 0;
+		return INCORRECT_INDEX;
 
 	//if head is the only node
 	if (list->head->next == NULL)
@@ -145,7 +156,7 @@ int remove_node_from_end(GenericLinkedListT* list)
 		list->head = list->tail = NULL;
 		list->length = 0;
 
-		return 1;
+		return SUCCESS;
 	}
 
 	//iterating until last element is found
@@ -161,15 +172,15 @@ int remove_node_from_end(GenericLinkedListT* list)
 	list->tail = pWalker;
 	list->length--;
 
-	return 1;
+	return SUCCESS;
 
 }
 
-int remove_node_from_beginning(GenericLinkedListT* list)
+ReturnCodeE remove_node_from_beginning(GenericLinkedListT* list)
 {
 	if (list->head == NULL)
 	{
-		return 0;
+		return INCORRECT_INDEX;
 	}
 
 	NodeT* head = list->head;
@@ -179,14 +190,14 @@ int remove_node_from_beginning(GenericLinkedListT* list)
 	free(head);
 	list->length--;
 
-	return 1;
+	return SUCCESS;
 }
 
 
-int remove_node_at_index(GenericLinkedListT* list, int index)
+ReturnCodeE remove_node_at_index(GenericLinkedListT* list, int index)
 {
 	if (index < 0 || index >= list->length)
-		return 0;
+		return INCORRECT_INDEX;
 
 	if (index == 0)
 	{
@@ -199,7 +210,7 @@ int remove_node_at_index(GenericLinkedListT* list, int index)
 	}
 
 	if (list->head == NULL)
-		return 0;
+		return INCORRECT_INDEX;
 
 	//value to be deleted will be stored in pWalker->next, so i should start from 1
 	int i = 1;
@@ -216,11 +227,80 @@ int remove_node_at_index(GenericLinkedListT* list, int index)
 			free(to_delete);
 			list->length--;
 
-			return 1;
+			return SUCCESS;
 		}
 		pWalker = pWalker->next;
 		i++;
 	}
 
-	return 0;
+	return INCORRECT_INDEX;
+}
+
+void* search_element_in_list(GenericLinkedListT* list, void* element, int(*compare)(const void* a, const void *b))
+{
+	NodeT* pWalker = list->head;
+	while (pWalker != NULL)
+	{
+		if (compare(pWalker->data, element) == 0)
+		{
+			return pWalker->data;
+		}
+	}
+
+	return NULL;
+}
+
+void sort_elements_in_list(GenericLinkedListT* list, int(*compare)(const void* a, const void *b))
+{
+	// Bubble sort, since we do not have random access.
+	for (NodeT* pWalker1 = list->head; pWalker1->next != NULL; pWalker1 = pWalker1->next)
+	{
+		for (NodeT* pWalker2 = pWalker1->next; pWalker2->next != NULL; pWalker2 = pWalker2->next)
+		{
+			if (compare(pWalker1->data, pWalker2->data) > 0)
+			{
+				void* temp = pWalker1->data;
+				pWalker1->data = pWalker2->data;
+				pWalker2->data = temp;
+			}
+		}
+	}
+}
+
+void merge_linked_lists(GenericLinkedListT* list_destination, GenericLinkedListT* list_source)
+{
+	if (list_destination->head == NULL)
+	{
+		//if the destination list is empty, copy everything from the source list.
+		list_destination->head = list_source->head;
+		list_destination->tail = list_source->tail;
+		list_destination->length = list_source->length;
+
+		list_source->head = list_source->tail = NULL;
+		list_source->length = 0;
+
+		return;
+	}
+	list_destination->tail->next = list_source->head;
+	list_destination->tail = list_source->tail;
+	list_destination->length += list_source->length;
+
+	list_source->head = list_source->tail = NULL;
+	list_source->length = 0;
+}
+
+void delete_linked_list(GenericLinkedListT* list, void(*free_generic_data)(void* generic_data))
+{
+	NodeT* pWalker = list->head;
+	while (pWalker != NULL)
+	{
+		NodeT* next = pWalker->next;
+		free_generic_data(pWalker->data);
+		free(pWalker->data);
+		free(pWalker);
+		pWalker = next;
+	}
+
+	list->head = list->tail = NULL;
+	list->length = 0;
 }

@@ -1,7 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 /*
 author: Acs David
-file name: generic_array_tester.h
+file name: generic_array_tester.cpp
 file creation date: 2016-11-29 22:16:25
 */
 
@@ -476,4 +476,3 @@ void test_generic_array(IOFilesT* files)
 
 	free(arrays);
 }
-
