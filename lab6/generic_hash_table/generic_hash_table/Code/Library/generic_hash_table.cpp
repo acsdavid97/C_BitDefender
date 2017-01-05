@@ -76,65 +76,6 @@ double get_load_factor(GenericHashTableT* table)
 	return (double)table->nr_of_elements / table->size;
 }
 
-ReturnCodeE add_element_in_hash_table(GenericHashTableT* table, void* element)
-{
-	double load_factor = get_load_factor(table);
-
-	if (load_factor >= MAX_LOAD_FACTOR)
-	{
-	}
-
-	unsigned int hashed = get_hash(table, element);
-	GenericLinkedListT* list = *(table->array_of_lists + hashed);
-	NodeT* node = create_NodeT(element);
-	if (node == NULL)
-	{
-		return MEMORY_ALLOCATION_ERROR;
-	}
-	table->nr_of_elements++;
-	return add_node_at_end(list, node);
-
-}
-
-void* delete_element_from_hash_table(GenericHashTableT* table, void* element, int(*compare)(const void* a, const void* b))
-{
-	int hashed = get_hash(table, element);
-	GenericLinkedListT* list = *(table->array_of_lists + hashed);
-	void* deleted_element = search_and_delete_element_in_list(list, element, compare);
-	if (deleted_element == NULL)
-	{
-		return NULL;
-	}
-
-	table->nr_of_elements--;
-	return deleted_element;
-}
-
-void* search_element_in_hash_table(GenericHashTableT* table, void* element, int (*compare)(const void* a, const void* b))
-{
-	unsigned int hashed = get_hash(table, element);
-	GenericLinkedListT* list = *(table->array_of_lists + hashed);
-	return search_element_in_list(list, element, compare);
-}
-
-void print_elements_in_hash_table(GenericHashTableT* table, FILE* file, void(*print_element)(const void *a, FILE* file))
-{
-	for (int i = 0; i < table->size; i++)
-	{
-		fprintf(file, "%d: ", i);
-		GenericLinkedListT* list = *(table->array_of_lists + i);
-		if (list->length > 0)
-			print_linked_list(list, file, print_element);
-		else
-			fprintf(file, "<empty>\n");
-	}
-}
-
-void delete_elements_in_hash_table(GenericHashTableT* hash_table, void(*free_generic_data)(void* generic_data))
-{
-	//TODO: DO IT! :D
-}
-
 ReturnCodeE rehash_table(GenericHashTableT* hash_table,unsigned int new_size, unsigned int(*hash_function)(const void* element))
 {
 	//allocating memory for data
@@ -180,5 +121,77 @@ ReturnCodeE rehash_table(GenericHashTableT* hash_table,unsigned int new_size, un
 	free(hash_table->array_of_lists);
 	hash_table->array_of_lists = rehashed_data;
 	return SUCCESS;
-	
 }
+
+ReturnCodeE add_element_in_hash_table(GenericHashTableT* table, void* element)
+{
+	double load_factor = get_load_factor(table);
+
+	if (load_factor >= MAX_LOAD_FACTOR)
+	{
+		int new_size = get_double_size(table->size);
+		ReturnCodeE return_code = rehash_table(table, new_size, table->hash_function);
+		if (return_code != SUCCESS)
+		{
+			return return_code;
+		}
+	}
+
+	unsigned int hashed = get_hash(table, element);
+	GenericLinkedListT* list = *(table->array_of_lists + hashed);
+	NodeT* node = create_NodeT(element);
+	if (node == NULL)
+	{
+		return MEMORY_ALLOCATION_ERROR;
+	}
+	table->nr_of_elements++;
+	return add_node_at_end(list, node);
+}
+
+void* delete_element_from_hash_table(GenericHashTableT* table, void* element, int(*compare)(const void* a, const void* b))
+{
+	int hashed = get_hash(table, element);
+	GenericLinkedListT* list = *(table->array_of_lists + hashed);
+	void* deleted_element = search_and_delete_element_in_list(list, element, compare);
+	if (deleted_element == NULL)
+	{
+		return NULL;
+	}
+
+	table->nr_of_elements--;
+	return deleted_element;
+}
+
+void* search_element_in_hash_table(GenericHashTableT* table, void* element, int (*compare)(const void* a, const void* b))
+{
+	unsigned int hashed = get_hash(table, element);
+	GenericLinkedListT* list = *(table->array_of_lists + hashed);
+	return search_element_in_list(list, element, compare);
+}
+
+void print_elements_in_hash_table(GenericHashTableT* table, FILE* file, void(*print_element)(const void *a, FILE* file))
+{
+	for (int i = 0; i < table->size; i++)
+	{
+		fprintf(file, "%d: ", i);
+		GenericLinkedListT* list = *(table->array_of_lists + i);
+		if (list->length > 0)
+			print_linked_list(list, file, print_element);
+		else
+			fprintf(file, "<empty>\n");
+	}
+}
+
+void delete_elements_in_hash_table(GenericHashTableT* table, void(*free_generic_data)(void* generic_data))
+{
+	for (int i = 0; i < table->size; i++)
+	{
+		GenericLinkedListT* list = *(table->array_of_lists + i);
+		delete_linked_list(list, free_generic_data);
+		free(list);
+	}
+	free(table->array_of_lists);
+	table->nr_of_elements = 0;
+	table->size = 0;
+}
+

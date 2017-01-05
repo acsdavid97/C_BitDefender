@@ -1,6 +1,6 @@
 /*
 author: Acs David
-file name: generic_linked_list
+file name: generic_linked_list.h
 file creation date: 2016-11-20 23:26:24
 */
 

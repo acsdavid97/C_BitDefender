@@ -1,11 +1,11 @@
 /*
 author: Acs David
-file name: generic_array_tester.h
+file name: generic_hash_table_tester.h
 file creation date: 2016-11-29 22:16:25
 */
 
-#ifndef GENERIC_ARRAY_TESTER_H
-#define GENERIC_ARRAY_TESTER_H
+#ifndef GENERIC_HASH_TABLE_TESTER_H
+#define GENERIC_HASH_TABLE_TESTER_H
 
 #include <string.h>
 #include "../Library/generic_hash_table.h"

@@ -258,7 +258,9 @@ void ReHashTable(GenericHashTableT* table_instance, IOFilesT* files)
 
 void DeleteHashTable(GenericHashTableT** table_instance, IOFilesT* files, void(*free_generic_data)(void* generic_data))
 {
-	//TODO: delete_hash_talbe
+	delete_elements_in_hash_table(*table_instance, free_generic_data);
+	free(*table_instance);
+	*table_instance = NULL;
 }
 
 PossibleCommandsE get_command(char* command)
@@ -381,8 +383,6 @@ void test_generic_hash_table(IOFilesT* files)
 			exit(42); // the answer to life the universe and everything
 			break;
 		}
-
 	}
-
 	free(tables);
 }
