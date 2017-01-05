@@ -1,0 +1,4 @@
+CreateHeap A
+AddHeapItem A
+2
+PrintHeap A
