@@ -114,7 +114,6 @@ ReturnCodeE rehash_table(GenericHashTableT* hash_table,unsigned int new_size, un
 
 			remove_node_from_beginning(list);
 		}
-
 		free(list);
 	}
 

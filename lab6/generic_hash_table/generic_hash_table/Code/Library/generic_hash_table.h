@@ -36,7 +36,7 @@ GenericHashTableT* create_empty_GenericHashTableT();
 
 /*
 	Returns the hash of element, using the hash function contained in table.
-	If no hash function is found in table, uses the pointer values of element.
+	If no hash function is found in table, uses the first four bytes as unsigned int of element.
 
 	@param table: hash table
 	@param element: element to be hashed
@@ -54,7 +54,7 @@ unsigned int get_hash(GenericHashTableT* table, void* element);
 ReturnCodeE add_element_in_hash_table(GenericHashTableT* hash_table, void* element);
 
 /*
-	Deletes an element from the hash table.
+	Deletes an element from the hash table, with the help of the function compare.
 
 	@return pointer to deleted element, otherwise NULL.
 */
@@ -94,7 +94,9 @@ void delete_elements_in_hash_table(GenericHashTableT* hash_table, void(*free_gen
 	@param hash_table: the table to be rehashed
 	@param hash_function: pointer to a function, which can hash an element
 
-	@return TODO: too lazy now.
+	@return SUCCESS: operation successful.
+	@return MEMORY_ALLOCATIO_ERROR: could not resize table, or could not create node for element. 
+	Everything remains as it was before attempting the operation.
 */
 ReturnCodeE rehash_table(GenericHashTableT* hash_table,unsigned int new_size, unsigned int(*hash_function)(const void* element));
 #endif
