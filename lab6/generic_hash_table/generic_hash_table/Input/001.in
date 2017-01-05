@@ -1,0 +1,15 @@
+CreateHashTable A
+AddHashTableItem A
+54
+AddHashTableItem A
+634
+AddHashTableItem A
+7234
+AddHashTableItem A
+8234
+SearchHashTableItem A
+635
+PrintHashTable A
+ReHashTable A
+SecondHash
+PrintHashTable A
