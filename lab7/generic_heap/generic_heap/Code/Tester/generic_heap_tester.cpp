@@ -1,9 +1,10 @@
 #define _CRT_SECURE_NO_WARNINGS
 /*
 author: Acs David
-file name: generic_hash_table_tester.cpp
+file name: generic_heap_tester.cpp
 file creation date: 2017-01-04 22:16:25
 */
+
 
 #include "generic_heap_tester.h"
 
@@ -111,6 +112,9 @@ void print_error(ErrorCodeE error_code, FILE* file)
 		case DATA_STRUCTURE_OVERWRITTEN:
 			fprintf(file, "Error: a structure must be deleted before it can be created again\n");
 			break;
+		case COMPARE_FUNCTION_DIFFERENT:
+			fprintf(file, "Error: compare function does not match in heaps, cannot merge heaps\n");
+			break;
 		case UNKNOWN_ERROR_OCCURED:
 			fprintf(file, "Uknown error.\n");
 			break;
@@ -120,8 +124,7 @@ void print_error(ErrorCodeE error_code, FILE* file)
 	}
 }
 
-//TODO: continue adjusting tester for GenericHeapT
-GenericHeapT** get_generic_table(GenericHeapT** tables, char* instance, FILE* file)
+GenericHeapT** get_generic_heap(GenericHeapT** heaps, char* instance, FILE* file)
 {
 	if (instance == NULL)
 	{
@@ -136,38 +139,36 @@ GenericHeapT** get_generic_table(GenericHeapT** tables, char* instance, FILE* fi
 	{
 		return NULL;
 	}
-	return tables + letter;
+	return heaps + letter;
 }
 
-void CreateHeap(GenericHeapT** table_instance, IOFilesT* files)
+void CreateHeap(GenericHeapT** heap_instance, IOFilesT* files, int(*compare)(const void* a, const void* b))
 {
-	*table_instance = create_empty_GenericHeapT();
+	*heap_instance = create_empty_GenericHeapT(compare);
 
-	if (*table_instance == NULL)
+	if (*heap_instance == NULL)
 	{
 		print_error(MEMORY_ALLOCATION_FAILED, files->output);
 	}
 }
 
-void PrintHeap(GenericHeapT* table_instance, IOFilesT* files,
+void PrintHeap(GenericHeapT* heap_instance, IOFilesT* files,
 	void (*print_generic_data)(const void *element, FILE* file))
 {
-	if (table_instance->nr_of_elements <= 0)
+	if (get_nr_of_elements_in_heap(heap_instance) <= 0)
 	{
 		//data structure empty
 		print_error(STRUCTURE_IS_EMPTY, files->output);
 		return;
 	}
 
-	fprintf(files->output, "*Beginning of hash table*\n");
-	print_elements_in_hash_table(table_instance, files->output, print_generic_data);
-	fprintf(files->output, "*End of hash table*\n");
+	print_elements_in_heap(heap_instance, files->output, print_generic_data);
 }
 
-void AddHeapItem(GenericHeapT* table_instance, IOFilesT* files, void* (*read_and_create_generic_data)(FILE* file))
+void AddHeapItem(GenericHeapT* heap_instance, IOFilesT* files, void* (*read_and_create_generic_data)(FILE* file))
 {
 	void* element = read_and_create_generic_data(files->input);
-	ReturnCodeE return_code = add_element_in_hash_table(table_instance, element);
+	ReturnCodeE return_code = add_element_in_heap(heap_instance, element);
 
 	switch (return_code)
 	{
@@ -180,14 +181,43 @@ void AddHeapItem(GenericHeapT* table_instance, IOFilesT* files, void* (*read_and
 		print_error(UNKNOWN_ERROR_OCCURED, files->output);
 		break;
 	}
-
 }
 
-void DeleteHeapItem(GenericHeapT* table_instance, IOFilesT* files, void(*free_generic_data)(void* generic_data),
-	int(*compare)(const void* a, const void *b), void* (*read_and_create_generic_data)(FILE* file))
+void GetHeapMin(GenericHeapT* heap_instance, IOFilesT* files, void(*print_element)(const void *a, FILE* file))
+{
+	void* element = get_heap_top(heap_instance);
+	if (element == NULL)
+	{
+		print_error(STRUCTURE_IS_EMPTY, files->output);
+		return;
+	}
+
+	print_element(element, files->output);
+	fprintf(files->output, "\n");
+}
+
+void DeleteHeapMin(GenericHeapT* heap_instance, IOFilesT* files, 
+	void(*print_element)(const void *a, FILE* file), void(*free_generic_data)(void* generic_data))
+{
+	void* element = delete_heap_top(heap_instance);
+	if (element == NULL)
+	{
+		print_error(STRUCTURE_IS_EMPTY, files->output);
+		return;
+	}
+
+	print_element(element, files->output);
+	fprintf(files->output, "\n");
+
+	free_GenericDataT(element);
+	free(element);
+}
+
+void DeleteHeapItem(GenericHeapT* heap_instance, IOFilesT* files,
+	void(*free_generic_data)(void* generic_data), void* (*read_and_create_generic_data)(FILE* file))
 {
 	void* element = read_and_create_generic_data(files->input);
-	void* deleted_element = delete_element_from_hash_table(table_instance, element, compare);
+	void* deleted_element = delete_element_from_heap(heap_instance, element);
 
 	if (deleted_element == NULL)
 	{
@@ -197,71 +227,33 @@ void DeleteHeapItem(GenericHeapT* table_instance, IOFilesT* files, void(*free_ge
 	free_generic_data(element);
 	free(element);
 }
-
-void SearchHeapItem(GenericHeapT* table_instance, IOFilesT* files, int(*compare)(const void* a, const void* b),
-	void* (*read_and_create_generic_data)(FILE* file), void(*print_element)(const void *a, FILE* file))
+void MergeHeaps(GenericHeapT** heap_instance, GenericHeapT**  heap_instance2, IOFilesT* files)
 {
-	void* element = read_and_create_generic_data(files->input);
-	void* element_found = search_element_in_hash_table(table_instance, element, compare);
-
-	if (element_found == NULL)
-	{
-		fprintf(files->output, "Item not found.\n");
-		return;
-	}
-
-	print_element(element_found, files->output);
-	fprintf(files->output, "\n");
-}
-
-//function which returns a hash function, based on string.
-unsigned int(*get_hash_function(char* string))(const void*)
-{
-	if (strcmp(string, "FirstHash\n") == 0)
-	{
-		return first_hash_for_GenericDataT;
-	}
-	else if (strcmp(string, "SecondHash\n") == 0)
-	{
-		return second_hash_for_GenericDataT;
-	}
-	return NULL;
-}
-
-void ReHeap(GenericHeapT* table_instance, IOFilesT* files)
-{
-	char buffer[BUFFER_SIZE];
-	fgets(buffer, BUFFER_SIZE, files->input);
-	
-	unsigned int(*hash_function)(const void* element) = get_hash_function(buffer);
-	if (hash_function == NULL)
-	{
-		print_error(UNRECOGNIZED_HASH_FUNCTION, files->output);
-		return;
-	}
-
-	ReturnCodeE return_code = rehash_table(table_instance, table_instance->size, hash_function);
+	ReturnCodeE return_code = merge_heaps(*heap_instance, *heap_instance2);
 
 	switch (return_code)
 	{
 	case SUCCESS:
-		//do nothing
+		free(*heap_instance2);
+		*heap_instance2 = NULL;
 		break;
 	case MEMORY_ALLOCATION_ERROR:
 		print_error(MEMORY_ALLOCATION_FAILED, files->output);
+		break;
+	case COMPARE_FUNCTION_MISMATCH:
+		print_error(COMPARE_FUNCTION_DIFFERENT, files->output);
 		break;
 	default:
 		print_error(UNKNOWN_ERROR_OCCURED, files->output);
 		break;
 	}
-
 }
 
-void DeleteHeap(GenericHeapT** table_instance, IOFilesT* files, void(*free_generic_data)(void* generic_data))
+void DeleteHeap(GenericHeapT** heap_instance, IOFilesT* files, void(*free_generic_data)(void* generic_data))
 {
-	delete_elements_in_hash_table(*table_instance, free_generic_data);
-	free(*table_instance);
-	*table_instance = NULL;
+	delete_elements_in_heap(*heap_instance, free_generic_data);
+	free(*heap_instance);
+	*heap_instance = NULL;
 }
 
 PossibleCommandsE get_command(char* command)
@@ -306,11 +298,11 @@ PossibleCommandsE get_command(char* command)
 
 void test_generic_heap(IOFilesT* files)
 {
-	//256 tables, so each character corresponds to a GenericHeapT.
-	GenericHeapT** tables = (GenericHeapT**)calloc(256, sizeof(GenericHeapT*));
-	if (tables == NULL)
+	//256 heaps, so each character corresponds to a GenericHeapT.
+	GenericHeapT** heaps = (GenericHeapT**)calloc(256, sizeof(GenericHeapT*));
+	if (heaps == NULL)
 	{
-		fprintf(files->output, "Fatal error: could not allocate memory for tables\n");
+		fprintf(files->output, "Fatal error: could not allocate memory for heaps\n");
 		fprintf(files->output, "exiting...\n");
 		exit(1);
 	}
@@ -337,10 +329,10 @@ void test_generic_heap(IOFilesT* files)
 		}
 
 		char* first_instance = strtok(NULL, " \n");
-		GenericHeapT** table_instance = get_generic_table(tables, first_instance, files->output);
+		GenericHeapT** heap_instance = get_generic_heap(heaps, first_instance, files->output);
 
-		if (table_instance == NULL || 
-			(*table_instance == NULL && command != CREATE_HEAP))
+		if (heap_instance == NULL || 
+			(*heap_instance == NULL && command != CREATE_HEAP))
 		{
 			//instance does not correspond to a valid data structure
 			//or instance is not yet created
@@ -351,33 +343,47 @@ void test_generic_heap(IOFilesT* files)
 		{
 		case CREATE_HEAP:
 			printf("CreateHeap\n");
-			CreateHeap(table_instance, files);
+			CreateHeap(heap_instance, files, compare_GenericDataT);
 			break;
 		case PRINT_HEAP:
 			printf("PrintHeap\n");
-			PrintHeap(*table_instance, files, print_GenericDataT);
+			PrintHeap(*heap_instance, files, print_GenericDataT);
 			break;
 		case ADD_HEAP_ITEM:
 			printf("AddHeapItem\n");
-			AddHeapItem(*table_instance, files, read_and_create_GenericDataT);
+			AddHeapItem(*heap_instance, files, read_and_create_GenericDataT);
+			break;
+		case GET_HEAP_TOP:
+			printf("GetHeapMin\n");
+			GetHeapMin(*heap_instance, files, print_GenericDataT);
+			break;
+		case DELETE_HEAP_TOP:
+			printf("DeleteHeapMin\n");
+			DeleteHeapMin(*heap_instance, files, print_GenericDataT, free_GenericDataT);
 			break;
 		case DELETE_HEAP_ITEM:
 			printf("DeleteHeapItem\n");
-			DeleteHeapItem(*table_instance, files, free_GenericDataT,
-				compare_GenericDataT, read_and_create_GenericDataT);
+			DeleteHeapItem(*heap_instance, files, free_GenericDataT, read_and_create_GenericDataT);
 			break;
-		case SEARCH_HEAP_ITEM:
-			printf("SearchHeapItem\n");
-			SearchHeapItem(*table_instance, files, compare_GenericDataT,
-				read_and_create_GenericDataT, print_GenericDataT);
+		case MERGE_HEAPS:
+		{
+			printf("MergeMinHeaps\n");
+			char* second_instance = strtok(NULL, " \n");
+			GenericHeapT** heap_instance2 = get_generic_heap(heaps, second_instance, files->output);
+
+			if (heap_instance2 == NULL || *heap_instance2 == NULL)
+			{
+				//instance does not correspond to a valid data structure
+				//or instance is not yet created
+				print_error(DATA_STRUCTURE_INEXISTENT, files->output);
+				continue;
+			}
+			MergeHeaps(heap_instance, heap_instance2, files);
 			break;
-		case RE_HEAP:
-			printf("ReHeap\n");
-			ReHeap(*table_instance, files);
-			break;
+		}
 		case DELETE_HEAP:
 			printf("DeleteHeap\n");
-			DeleteHeap(table_instance, files, free_GenericDataT);
+			DeleteHeap(heap_instance, files, free_GenericDataT);
 			break;
 		case UNKOWN_COMMAND:
 			printf("Unknown command\n");
@@ -389,5 +395,5 @@ void test_generic_heap(IOFilesT* files)
 			break;
 		}
 	}
-	free(tables);
+	free(heaps);
 }

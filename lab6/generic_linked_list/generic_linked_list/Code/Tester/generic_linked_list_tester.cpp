@@ -275,9 +275,11 @@ void DeleteLinkedList(GenericLinkedListT** list_instance, IOFilesT* files, void(
 	*list_instance = NULL;
 }
 
-void MergeLinkedLists(GenericLinkedListT* list_destination, GenericLinkedListT* list_source, IOFilesT* files)
+void MergeLinkedLists(GenericLinkedListT** list_destination, GenericLinkedListT** list_source, IOFilesT* files)
 {
-	merge_linked_lists(list_destination, list_source);
+	merge_linked_lists(*list_destination,*list_source);
+	free(*list_source);
+	*list_source = NULL;
 }
 
 PossibleCommandsE get_command(char* command)
@@ -326,8 +328,6 @@ PossibleCommandsE get_command(char* command)
 	{
 		return UNKOWN_COMMAND;
 	}
-
-
 }
 
 void test_generic_linked_list(IOFilesT* files)
@@ -419,9 +419,7 @@ void test_generic_linked_list(IOFilesT* files)
 				print_error(DATA_STRUCTURE_INEXISTENT, files->output);
 				continue;
 			}
-			MergeLinkedLists(*list_instance, *list_instance2, files);
-			free(*list_instance2);
-			*list_instance2 = NULL;
+			MergeLinkedLists(list_instance, list_instance2, files);
 			break;
 		}
 		case DELETE_LINKED_LIST:

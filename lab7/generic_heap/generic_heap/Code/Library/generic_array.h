@@ -11,7 +11,7 @@ file creation date: 2016-11-20 23:26:24
 #include <stdlib.h>
 
 typedef enum ReturnCodeEnum {
-	SUCCESS, MEMORY_ALLOCATION_ERROR, INCORRECT_INDEX
+	SUCCESS, MEMORY_ALLOCATION_ERROR, INCORRECT_INDEX, COMPARE_FUNCTION_MISMATCH
 }ReturnCodeE;
 
 // structs
@@ -55,12 +55,26 @@ ReturnCodeE delete_element_at_index(GenericArrayT* array, int index, void(*free_
 void* get_element_at_index(GenericArrayT* array, int index);
 
 /*
+	Sets element at the index specifed.
+*/
+ReturnCodeE set_element_at_index(GenericArrayT* array, void* element,  int index);
+
+/*
+	Exchanges two elements at the indexes specified.
+
+	@return INDEX_INCORRECT: one of the indexes is out of bounds
+	@return SUCCESS: operation successful
+*/
+ReturnCodeE exchange_elements_at_indexes(GenericArrayT* array, int first_index, int second_index);
+
+/*
 	Searches for element in array, with the help of the function compare.
 
 	@param compare: a pointer to a function which can compare two elements.
 
 	@return: index of found element, -1 if item is not found.
 */
+
 int search_element_in_array(GenericArrayT* array, void* element, int (*compare)(const void* a, const void* b));
 
 /*

@@ -1,4 +1,11 @@
 CreateHeap A
 AddHeapItem A
 2
+AddHeapItem A
+3
+CreateHeap B
+AddHeapItem B
+-1
+MergeMinHeaps A B
 PrintHeap A
+PrintHeap B

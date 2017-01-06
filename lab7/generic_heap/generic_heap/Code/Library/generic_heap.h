@@ -13,9 +13,15 @@ file creation date: 2017-01-04 23:26:24
 #include "../Tester/generic_data.h"
 #include "generic_array.h"
 
-// structs
+//auxiliary struct for finding min element of two child nodes.
+typedef struct HeapElementTag {
+	void* element;
+	int index;
+}HeapElementT;
+
 typedef struct GenericHeapTag {
 	GenericArrayT* array; //array, where the elements are stored.
+	int(*compare)(const void* a, const void* b); // compare function, used to keep the heap invariant.
 }GenericHeapT;
 
 // define your functions here
@@ -25,7 +31,14 @@ typedef struct GenericHeapTag {
 
 	@return:  pointer to new generic heap, if memory allocation failed returns NULL.
 */
-GenericHeapT* create_empty_GenericHeapT();
+GenericHeapT* create_empty_GenericHeapT(int(*compare)(const void* a, const void* b));
+
+/*
+	Returns the number of elements in the heap.
+
+	@return: number of elements in the heap.
+*/
+int get_nr_of_elements_in_heap(GenericHeapT* heap);
 
 /*
 	Adds an element, resizes heap as needed
@@ -33,7 +46,7 @@ GenericHeapT* create_empty_GenericHeapT();
 	@return SUCCESS: operation successful
 	@return MEMORY_ALLOCATION_ERROR: resize operation failed, heap is still preserved
 */
-ReturnCodeE add_element_in_heap(GenericHeapT* heap, void* element, int(*compare)(const void* a, const void* b));
+ReturnCodeE add_element_in_heap(GenericHeapT* heap, void* element);
 
 /*
 	Returns the top element in the heap (usually min or max).
@@ -50,11 +63,19 @@ void* get_heap_top(GenericHeapT* heap);
 void* delete_heap_top(GenericHeapT* heap);
 
 /*
+	Searches for an element in heap, uses the compare fucntion defined in heap.
+
+	@return MinElementT*: pointer to a struct containing the element found, and it's index.
+	If element is not found, returns NULL.
+*/
+HeapElementT* search_element_in_heap(GenericHeapT* heap, void* element);
+
+/*
 	Deletes an element from the heap.
 
-	@return pointer to deleted element, otherwise NULL.
+	@return pointer to deleted element, if heap is empty returns NULL.
 */
-void* delete_element_from_heap(GenericHeapT* heap, void* element, int(*compare)(const void* a, const void* b));
+void* delete_element_from_heap(GenericHeapT* heap, void* element);
 
 /*
 	Prints all the elements of heap in tree format, using the function print_element
@@ -63,9 +84,8 @@ void* delete_element_from_heap(GenericHeapT* heap, void* element, int(*compare)(
 */
 void print_elements_in_heap(GenericHeapT* heap, FILE* file, void(*print_element)(const void *a, FILE* file));
 
-
 /*
-	Merges two heaps. 
+	Merges two heaps. The compare function of the two heaps should be identical.
 
 	@param heap_destination: heap where the merged heap will be found after a successful operation.
 
@@ -78,8 +98,8 @@ void print_elements_in_heap(GenericHeapT* heap, FILE* file, void(*print_element)
 ReturnCodeE merge_heaps(GenericHeapT* heap_destination, GenericHeapT* heap_source);
 
 /*
-	Frees all elements inside the heap.
-	Sets nr_of_elements and size to zero.
+	Frees all elements inside heap->array, frees heap->array.
+	Sets heap->array and heap->compare to NULL.
 	GenericHeapT* heap should be freed afterwards.
 
 	@param heap: heap from which all elements will be deleted.

@@ -2,7 +2,7 @@
 /*
 author: Acs David
 file name: main.cpp
-file creation date: 2016-12-18 19:48:35
+file creation date: 2017-01-04 22:16:25
 */
 
 #include "generic_heap_tester.h"
@@ -10,7 +10,7 @@ file creation date: 2016-12-18 19:48:35
 /*
 NOTE: I did not found a cross-platform solution to traverse directories.
 On Windows you should copy dirent.h to the include folders.
-Follow this link for more info: https://github.com/tronkko/dirent 
+Follow this link for more info: https://github.com/tronkko/dirent
 */
 
 void runall(const char* dirname)
@@ -21,7 +21,7 @@ void runall(const char* dirname)
 
 		struct dirent *ent;
 		// Iterate through all files and directories within the directory.
-		while ((ent = readdir(dir)) != NULL) 
+		while ((ent = readdir(dir)) != NULL)
 		{
 			// If it's a file
 			if (ent->d_type == DT_REG)
@@ -87,7 +87,7 @@ int main(int argc, char* args[])
 			continue;
 		}
 
-		test_generic_hash_table(files);
+		test_generic_heap(files);
 		close_IOFiles(files);
 		free(files);
 	}

@@ -96,6 +96,38 @@ void* get_element_at_index(GenericArrayT* array, int index)
 	return *(array->data + index);
 }
 
+ReturnCodeE set_element_at_index(GenericArrayT* array, void* element, int index)
+{
+	//out of bounds
+	if (index < 0 || index >= array->length)
+	{
+		return INCORRECT_INDEX;
+	}
+
+	*(array->data + index) = element;
+	return SUCCESS;
+}
+
+ReturnCodeE exchange_elements_at_indexes(GenericArrayT* array, int first_index, int second_index)
+{
+	//out of bounds
+	if (first_index < 0 || first_index >= array->length)
+	{
+		return INCORRECT_INDEX;
+	}
+
+	if (second_index < 0 || second_index >= array->length)
+	{
+		return INCORRECT_INDEX;
+	}
+
+	void* tmp = *(array->data + first_index);
+	*(array->data + first_index) = *(array->data + second_index);
+	*(array->data + second_index) = tmp;
+
+	return SUCCESS;
+}
+
 int search_element_in_array(GenericArrayT* array, void* element, int (*compare)(const void* a, const void* b))
 {
 	//iterate over array
