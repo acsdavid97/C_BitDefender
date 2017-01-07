@@ -11,7 +11,6 @@ file creation date: 2017-01-04 23:26:24
 #include <stdlib.h>
 
 #include "generic_linked_list.h"
-#include "../Tester/generic_data.h"
 #include <math.h>
 
 const double MAX_LOAD_FACTOR = 0.75;

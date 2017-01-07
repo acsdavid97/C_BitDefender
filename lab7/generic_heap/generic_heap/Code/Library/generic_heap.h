@@ -10,7 +10,6 @@ file creation date: 2017-01-04 23:26:24
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../Tester/generic_data.h"
 #include "generic_array.h"
 
 //auxiliary struct for finding min element of two child nodes.

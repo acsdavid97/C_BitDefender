@@ -10,8 +10,6 @@ file creation date: 2017-01-07 13:26:24
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../Tester/generic_data.h"
-
 typedef enum ReturnCodeEnum {
 	SUCCESS, MEMORY_ALLOCATION_ERROR, COMPARE_FUNCTION_MISMATCH
 }ReturnCodeE;
@@ -108,8 +106,8 @@ ReturnCodeE merge_trees(GenericSearchTreeT* tree_destination, GenericSearchTreeT
 int height_of_subtree(TreeNodeT* subtree_root);
 
 /*
-	Frees all elements inside tree->array, frees tree->array.
-	Sets tree->array and tree->compare to NULL.
+	Frees all elements inside tree.
+	Sets tree->nr_of_elements to zero, tree->compare and tree->root to NULL.
 	GenericSearchTreeT* tree should be freed afterwards.
 
 	@param tree: tree from which all elements will be deleted.

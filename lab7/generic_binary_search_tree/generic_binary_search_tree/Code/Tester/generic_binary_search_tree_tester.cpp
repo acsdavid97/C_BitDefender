@@ -221,9 +221,19 @@ void AddBSTItem(GenericSearchTreeT* tree_instance, IOFilesT* files, void* (*read
 		break;
 	}
 }
-void SearchBSTItem(GenericSearchTreeT* tree_instance, IOFilesT* files, void* (*read_and_create_generic_data)(FILE* file))
+void SearchBSTItem(GenericSearchTreeT* tree_instance, IOFilesT* files, 
+	void* (*read_and_create_generic_data)(FILE* file), void(*print_element)(const void *a, FILE* file))
 {
-	//TODO: implement
+	void* element = read_and_create_generic_data(files->input);
+	TreeNodeT* node_found = search_element_in_tree(tree_instance, element);
+	if (node_found == NULL)
+	{
+		fprintf(files->output, "Element is not in tree\n");
+		return;
+	}
+
+	print_element(node_found->element, files->output);
+	fprintf(files->output, "\n");
 }
 
 void DeleteBSTItem(GenericSearchTreeT* tree_instance, IOFilesT* files,
@@ -240,6 +250,7 @@ void DeleteBSTItem(GenericSearchTreeT* tree_instance, IOFilesT* files,
 	free_generic_data(element);
 	free(element);
 }
+
 void MergeBSTs(GenericSearchTreeT** tree_instance, GenericSearchTreeT**  tree_instance2, IOFilesT* files)
 {
 	ReturnCodeE return_code = merge_trees(*tree_instance, *tree_instance2);
@@ -260,6 +271,12 @@ void MergeBSTs(GenericSearchTreeT** tree_instance, GenericSearchTreeT**  tree_in
 		print_error(UNKNOWN_ERROR_OCCURED, files->output);
 		break;
 	}
+}
+
+void HeightBST(GenericSearchTreeT* tree_instance, IOFilesT* files)
+{
+	int height = height_of_subtree(tree_instance->root);
+	fprintf(files->output, "%d\n", height);
 }
 
 void DeleteBST(GenericSearchTreeT** tree_instance, IOFilesT* files, void(*free_generic_data)(void* generic_data))
@@ -392,7 +409,7 @@ void test_generic_binary_search_tree(IOFilesT* files)
 			break;
 		case SEARCH_TREE_ITEM:
 			printf("SearchBSTItem\n");
-			SearchBSTItem(*tree_instance, files, read_and_create_GenericDataT);
+			SearchBSTItem(*tree_instance, files, read_and_create_GenericDataT, print_GenericDataT);
 			break;
 		case DELETE_TREE_ITEM:
 			printf("DeleteBSTItem\n");
@@ -414,6 +431,10 @@ void test_generic_binary_search_tree(IOFilesT* files)
 			MergeBSTs(tree_instance, tree_instance2, files);
 			break;
 		}
+		case SUBTREE_HEIGHT:
+			printf("HeightBST\n");
+			HeightBST(*tree_instance, files);
+			break;
 		case DELETE_TREE:
 			printf("DeleteBST\n");
 			DeleteBST(tree_instance, files, free_GenericDataT);

@@ -68,6 +68,11 @@ HeapElementT* get_min_child(GenericHeapT* heap, int index, int(*compare)(const v
 	}
 
 	HeapElementT* min_child = (HeapElementT*)malloc(sizeof(HeapElementT));
+	if (min_child == NULL)
+	{
+		//memory allocation failed.
+		return NULL;
+	}
 
 	//right child does not exist
 	if (right_child == NULL)
@@ -178,6 +183,10 @@ HeapElementT* search_element_recursively_in_heap(GenericHeapT* heap, void* eleme
 	if (heap->compare(element, current_element) == 0)
 	{
 		HeapElementT* element_found = (HeapElementT*)malloc(sizeof(HeapElementT));
+		if (element_found == NULL)
+		{
+			return NULL;
+		}
 		element_found->element = current_element;
 		element_found->index = current_index;
 		return element_found;
@@ -234,7 +243,7 @@ void print_elements_recusively_inorder(GenericHeapT* heap, int current_index,
 	{
 		return;
 	}
-	print_elements_recusively_inorder(heap, get_left_child_index(current_index),
+	print_elements_recusively_inorder(heap, get_right_child_index(current_index),
 		current_level + 1, file, print_element);
 	for (int i = 0; i < current_level; i++)
 	{
@@ -242,7 +251,7 @@ void print_elements_recusively_inorder(GenericHeapT* heap, int current_index,
 	}
 	print_element(element, file);
 	fprintf(file, "\n");
-	print_elements_recusively_inorder(heap, get_right_child_index(current_index),
+	print_elements_recusively_inorder(heap, get_left_child_index(current_index),
 		current_level + 1, file, print_element);
 
 }
@@ -275,7 +284,7 @@ ReturnCodeE merge_heaps(GenericHeapT* heap_destination, GenericHeapT* heap_sourc
 
 void delete_elements_in_heap(GenericHeapT* heap, void(*free_generic_data)(void* generic_data))
 {
-	delete_elements_in_array(heap->array, free_GenericDataT);
+	delete_elements_in_array(heap->array, free_generic_data);
 	free(heap->array);
 	heap->array = NULL;
 	heap->compare = NULL;
