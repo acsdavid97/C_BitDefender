@@ -175,7 +175,7 @@ void CreateLinkedList(GenericLinkedListT** list_instance, IOFilesT* files)
 		print_error(MEMORY_ALLOCATION_FAILED, files->output);
 	}
 }
-//TODO add functions
+
 void PrintLinkedList(GenericLinkedListT* list_instance, IOFilesT* files,
 	void(*print_generic_data)(const void *element, FILE* file))
 {

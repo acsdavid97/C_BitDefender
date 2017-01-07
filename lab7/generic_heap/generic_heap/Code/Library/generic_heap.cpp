@@ -280,4 +280,3 @@ void delete_elements_in_heap(GenericHeapT* heap, void(*free_generic_data)(void* 
 	heap->array = NULL;
 	heap->compare = NULL;
 }
-

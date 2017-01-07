@@ -270,9 +270,9 @@ PossibleCommandsE get_command(char* command)
 	{
 		return ADD_HEAP_ITEM;
 	}
-	else if (strcmp(command, "GetHeapItem") == 0)
+	else if (strcmp(command, "GetHeapMin") == 0)
 	{
-		return ADD_HEAP_ITEM;
+		return GET_HEAP_TOP;
 	}
 	else if (strcmp(command, "DeleteHeapMin") == 0)
 	{
