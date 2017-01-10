@@ -1,0 +1,9 @@
+Auchan
+milk 10
+lapte 11
+doggy 1E299
+
+next hipermarket
+milk 9
+lapte 76
+cat 2E-200
