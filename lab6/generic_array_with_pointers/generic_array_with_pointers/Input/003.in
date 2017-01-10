@@ -1,21 +1,21 @@
-PrintVector C
 CreateVector A
 AddVectorItems A
-5
-3 5 11 7 4
-PutVectorItem A
-2
-8
+-1
+12 2
 PrintVector A
-SortVector A
+AddVectorItems A
+5sd
+12 2
 PrintVector A
-CreateVector B
-AddVectorItems B
-10
--3 23 123 34 1 334 5 55 24 16
-PrintVector B
-SortVector B
-PrintVector B
-DeleteVector A
-DeleteVector B
+AddVectorItems A
+0
+12 2
+PrintVector A
+AddVectorItems A
+6
+12 2 5 4 2 3
+PrintVector A
+AddVectorItems A
+3
+12 2 5
 PrintVector A

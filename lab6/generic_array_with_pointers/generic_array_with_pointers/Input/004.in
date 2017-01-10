@@ -1,9 +1,15 @@
 CreateVector A
-AddVectorItems A
+PutVectorItem A
 5
-1 3 7 6 9
+4
+PutVectorItem A
+0
+4
+PutVectorItem A
+1
+2
 PrintVector A
 PutVectorItem A
+-1
 2
-10
 PrintVector A

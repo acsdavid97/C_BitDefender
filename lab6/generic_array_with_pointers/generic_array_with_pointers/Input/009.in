@@ -1,14 +1,12 @@
 CreateVector A
 AddVectorItems A
 5
-3 5 11 7 4
+9 5 4 7 1
 PrintVector A
-
 CreateVector B
 AddVectorItems B
-4
--1 -5 0 -14
+10
+1 2 3 5 8 7 1 4 6 9
 PrintVector B
-
 MergeVectors A B
 PrintVector A

@@ -122,12 +122,6 @@ void print_error(ErrorCodeE error_code, FILE* file)
 
 GenericArrayT** get_generic_array(GenericArrayT** arrays, char* instance, FILE* file)
 {
-	if (instance == NULL)
-	{
-		print_error(INSTANCE_UNKNOWN, file);
-		return NULL;
-	}
-
 	char letter = instance[0];
 
 	// check if it's valid
@@ -223,7 +217,7 @@ void AddVectorItems(GenericArrayT* array_instance, IOFilesT* files, void* (*read
 void PutVectorItem(GenericArrayT* array_instance, IOFilesT* files, void* (*read_and_create_generic_data)(FILE* file))
 {
 	int index = 0;
-	if (fscanf(files->input, "%d", &index))
+	if (fscanf(files->input, "%d", &index) == 1)
 	{
 		void* element = read_and_create_generic_data(files->input);
 		add_element_at_index_with_errors(array_instance, element, index, files->output);
@@ -238,7 +232,7 @@ void PutVectorItem(GenericArrayT* array_instance, IOFilesT* files, void* (*read_
 void GetVectorItem(GenericArrayT* array_instance, IOFilesT* files, void (*print_element)(const void *a, FILE* file))
 {
 	int index = 0;
-	if (fscanf(files->input, "%d", &index))
+	if (fscanf(files->input, "%d", &index) == 1)
 	{
 		void* element = get_element_at_index(array_instance, index);
 		if (element == NULL)
@@ -259,7 +253,7 @@ void GetVectorItem(GenericArrayT* array_instance, IOFilesT* files, void (*print_
 void DeleteVectorItem(GenericArrayT* array_instance, IOFilesT* files, void(*free_generic_data)(void* generic_data))
 {
 	int index = 0;
-	if (fscanf(files->input, "%d", &index))
+	if (fscanf(files->input, "%d", &index) == 1)
 	{
 		delete_element_at_index_with_errors(array_instance, index, files->output, free_generic_data);
 	}
@@ -284,7 +278,7 @@ void SearchVectorItem(GenericArrayT* array_instance, IOFilesT* files,
 
 	if (index == -1)
 	{
-		print_error(ITEM_NOT_FOUND, files->input);
+		fprintf(files->output, "Item not found in array\n");
 		return;
 	}
 
@@ -396,6 +390,13 @@ void test_generic_array(IOFilesT* files)
 		}
 
 		char* first_instance = strtok(NULL, " \n");
+
+		if (first_instance == NULL)
+		{
+			print_error(INSTANCE_UNKNOWN, files->output);
+			continue;
+		}
+
 		GenericArrayT** array_instance = get_generic_array(arrays, first_instance, files->output);
 
 		if (array_instance == NULL || 

@@ -1,0 +1,11 @@
+CreateVector A
+AddVectorItems A
+5
+1 3 7 6 9
+PrintVector A
+SearchVectorItem A
+7
+SearchVectorItem A
+3
+SearchVectorItem A
+10

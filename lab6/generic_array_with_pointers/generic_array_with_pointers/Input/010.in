@@ -1,8 +1,10 @@
 CreateVector A
 AddVectorItems A
 5
-1 2 3 4 5
+9 5 4 7 1
 PrintVector A
-
 DeleteVector A
+AddVectorItems A
+5
+9 5 4 7 1
 PrintVector A
