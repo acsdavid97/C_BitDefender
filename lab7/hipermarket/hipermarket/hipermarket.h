@@ -11,7 +11,7 @@ file creation date: 2016-11-20 23:26:24
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../../lab6/generic_hash_table/generic_hash_table/Code/Library/generic_hash_table.h"
+#include "Libraries\generic_hash_table.h"
 
 // structs
 typedef struct ProductTag {
