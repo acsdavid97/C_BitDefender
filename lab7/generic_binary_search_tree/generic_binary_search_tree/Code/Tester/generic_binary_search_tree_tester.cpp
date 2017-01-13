@@ -126,12 +126,6 @@ void print_error(ErrorCodeE error_code, FILE* file)
 
 GenericSearchTreeT** get_generic_tree(GenericSearchTreeT** trees, char* instance, FILE* file)
 {
-	if (instance == NULL)
-	{
-		print_error(INSTANCE_UNKNOWN, file);
-		return NULL;
-	}
-
 	char letter = instance[0];
 
 	// check if it's valid
@@ -371,6 +365,11 @@ void test_generic_binary_search_tree(IOFilesT* files)
 		}
 
 		char* first_instance = strtok(NULL, " \n");
+		if (first_instance == NULL)
+		{
+			print_error(INSTANCE_UNKNOWN, files->output);
+			continue;
+		}
 		GenericSearchTreeT** tree_instance = get_generic_tree(trees, first_instance, files->output);
 
 		if (tree_instance == NULL || 
@@ -419,6 +418,12 @@ void test_generic_binary_search_tree(IOFilesT* files)
 		{
 			printf("MergeBSTs\n");
 			char* second_instance = strtok(NULL, " \n");
+			if (second_instance == NULL)
+			{
+				print_error(INSTANCE_UNKNOWN, files->output);
+				continue;
+			}
+
 			GenericSearchTreeT** tree_instance2 = get_generic_tree(trees, second_instance, files->output);
 
 			if (tree_instance2 == NULL || *tree_instance2 == NULL)

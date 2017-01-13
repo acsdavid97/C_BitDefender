@@ -28,7 +28,7 @@ int get_double_size(int size)
 	return new_size;
 }
 
-GenericHashTableT* create_empty_GenericHashTableT()
+GenericHashTableT* create_empty_GenericHashTableT(unsigned int(*hash_function)(const void* element))
 {
 	GenericHashTableT* empty_table = (GenericHashTableT*)malloc(sizeof(GenericHashTableT));
 	if (empty_table == NULL)
@@ -55,7 +55,7 @@ GenericHashTableT* create_empty_GenericHashTableT()
 
 	empty_table->nr_of_elements = 0;
 	empty_table->size = STARTING_TABLE_SIZE;
-	empty_table->hash_function = NULL;
+	empty_table->hash_function = hash_function;
 
 	return empty_table;
 }

@@ -9,10 +9,7 @@ file creation date: 2017-01-07 13:26:24
 
 #include <stdio.h>
 #include <stdlib.h>
-
-typedef enum ReturnCodeEnum {
-	SUCCESS, MEMORY_ALLOCATION_ERROR, COMPARE_FUNCTION_MISMATCH
-}ReturnCodeE;
+#include "return_type_enum.h"
 
 //struct for each node in tree
 typedef struct TreeNodeTag {

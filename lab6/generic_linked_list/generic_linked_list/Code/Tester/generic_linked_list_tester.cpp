@@ -109,7 +109,7 @@ void print_error(ErrorCodeE error_code, FILE* file)
 		fprintf(file, "Error: Instance unknown\n");
 		break;
 	case DATA_STRUCTURE_OVERWRITTEN:
-		fprintf(file, "Error: a structure must be deleted before it can be created again\n");
+		fprintf(file, "Error: attempt to recreate an existing structure\n");
 		break;
 	case UNKNOWN_ERROR_OCCURED:
 		fprintf(file, "Uknown error.\n");
@@ -122,12 +122,6 @@ void print_error(ErrorCodeE error_code, FILE* file)
 
 GenericLinkedListT** get_generic_linked_list(GenericLinkedListT** lists, char* instance, FILE* file)
 {
-	if (instance == NULL)
-	{
-		print_error(INSTANCE_UNKNOWN, file);
-		return NULL;
-	}
-
 	char letter = instance[0];
 
 	// check if it's valid
@@ -197,7 +191,7 @@ void AddLinkedListItem(GenericLinkedListT* list_instance, IOFilesT* files, void*
 void PutLinkedListItem(GenericLinkedListT* list_instance, IOFilesT* files, void* (*read_and_create_generic_data)(FILE* file))
 {
 	int index = 0;
-	if (fscanf(files->input, "%d", &index))
+	if (fscanf(files->input, "%d", &index) == 1)
 	{
 		void* element = read_and_create_generic_data(files->input);
 		add_element_at_index_with_errors(list_instance, element, index, files->output);
@@ -213,7 +207,7 @@ void GetLinkedListItem(GenericLinkedListT* list_instance, IOFilesT* files,
 	void(*print_element)(const void *data, FILE* file))
 {
 	int index = 0;
-	if (fscanf(files->input, "%d", &index))
+	if (fscanf(files->input, "%d", &index) == 1)
 	{
 		NodeT* node = get_node_at_index(list_instance, index);
 		if (node == NULL)
@@ -241,9 +235,11 @@ void DeleteLinkedListItem(GenericLinkedListT* list_instance, IOFilesT* files, vo
 	if (element == NULL)
 	{
 		print_error(ITEM_NOT_FOUND, files->output);
+		return;
 	}
 
 	print_data(element, files->output);
+	fprintf(files->output, "\n");
 }
 
 void SortLinkedList(GenericLinkedListT* list_instance, IOFilesT* files, int(*compare)(const void* a, const void* b))
@@ -259,7 +255,7 @@ void SearchLinkedListItem(GenericLinkedListT* list_instance, IOFilesT* files, in
 
 	if (element_found == NULL)
 	{
-		print_error(ITEM_NOT_FOUND, files->input);
+		fprintf(files->output, "Item not found in array\n");
 		return;
 	}
 
@@ -360,6 +356,12 @@ void test_generic_linked_list(IOFilesT* files)
 		}
 
 		char* first_instance = strtok(NULL, " \n");
+		if (first_instance == NULL)
+		{
+			print_error(INSTANCE_UNKNOWN, files->output);
+			continue;
+		}
+
 		GenericLinkedListT** list_instance = get_generic_linked_list(lists, first_instance, files->output);
 
 		if (list_instance == NULL ||
@@ -410,6 +412,13 @@ void test_generic_linked_list(IOFilesT* files)
 		{
 			printf("MergeLinkedLists\n");
 			char* second_instance = strtok(NULL, " \n");
+			
+			if (first_instance == NULL)
+			{
+				print_error(INSTANCE_UNKNOWN, files->output);
+				continue;
+			}
+
 			GenericLinkedListT** list_instance2 = get_generic_linked_list(lists, second_instance, files->output);
 
 			if (list_instance2 == NULL || *list_instance2 == NULL)

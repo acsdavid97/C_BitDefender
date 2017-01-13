@@ -9,12 +9,7 @@ file creation date: 2016-11-20 23:26:24
 
 #include <stdio.h>
 #include <stdlib.h>
-
-
-typedef enum ReturnCodeEnum {
-	SUCCESS, MEMORY_ALLOCATION_ERROR, INCORRECT_INDEX
-}ReturnCodeE;
-
+#include "return_type_enum.h"
 
 // structs
 typedef struct GenericArrayTag {

@@ -126,12 +126,6 @@ void print_error(ErrorCodeE error_code, FILE* file)
 
 GenericHeapT** get_generic_heap(GenericHeapT** heaps, char* instance, FILE* file)
 {
-	if (instance == NULL)
-	{
-		print_error(INSTANCE_UNKNOWN, file);
-		return NULL;
-	}
-
 	char letter = instance[0];
 
 	// check if it's valid
@@ -162,7 +156,9 @@ void PrintHeap(GenericHeapT* heap_instance, IOFilesT* files,
 		return;
 	}
 
+	fprintf(files->output, "\n");
 	print_elements_in_heap(heap_instance, files->output, print_generic_data);
+	fprintf(files->output, "\n");
 }
 
 void AddHeapItem(GenericHeapT* heap_instance, IOFilesT* files, void* (*read_and_create_generic_data)(FILE* file))
@@ -329,6 +325,11 @@ void test_generic_heap(IOFilesT* files)
 		}
 
 		char* first_instance = strtok(NULL, " \n");
+		if (first_instance == NULL)
+		{
+			print_error(INSTANCE_UNKNOWN, files->output);
+			continue;
+		}
 		GenericHeapT** heap_instance = get_generic_heap(heaps, first_instance, files->output);
 
 		if (heap_instance == NULL || 
@@ -369,6 +370,12 @@ void test_generic_heap(IOFilesT* files)
 		{
 			printf("MergeMinHeaps\n");
 			char* second_instance = strtok(NULL, " \n");
+
+			if (second_instance == NULL)
+			{
+				print_error(INSTANCE_UNKNOWN, files->output);
+				continue;
+			}
 			GenericHeapT** heap_instance2 = get_generic_heap(heaps, second_instance, files->output);
 
 			if (heap_instance2 == NULL || *heap_instance2 == NULL)

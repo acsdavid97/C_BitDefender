@@ -27,11 +27,13 @@ typedef struct GenericHashTableTag {
 // define your functions here
 
 /*
-	Creates an empty generic hash table.
+	Creates an empty generic hash table. 
+
+	@param hash_function: hash function to be used in hash_table
 
 	@return:  pointer to new generic hash table, if memory allocation failed returns NULL.
 */
-GenericHashTableT* create_empty_GenericHashTableT();
+GenericHashTableT* create_empty_GenericHashTableT(unsigned int(*hash_function)(const void* element));
 
 /*
 	Returns the hash of element, using the hash function contained in table.

@@ -109,7 +109,7 @@ void print_error(ErrorCodeE error_code, FILE* file)
 			fprintf(file, "Error: Instance unknown\n");
 			break;
 		case DATA_STRUCTURE_OVERWRITTEN:
-			fprintf(file, "Error: a structure must be deleted before it can be created again\n");
+			fprintf(file, "Error: attempt to recreate an existing structure\n");
 			break;
 		case UNKNOWN_ERROR_OCCURED:
 			fprintf(file, "Uknown error.\n");
@@ -199,7 +199,7 @@ void AddVectorItems(GenericArrayT* array_instance, IOFilesT* files, void* (*read
 {
 	int nr_of_elements = 0;
 
-	if (fscanf(files->input, "%d", &nr_of_elements))
+	if (fscanf(files->input, "%d ", &nr_of_elements) == 1)
 	{
 		for (int i = 0; i < nr_of_elements; i++)
 		{
@@ -445,6 +445,13 @@ void test_generic_array(IOFilesT* files)
 		{
 			printf("MergeVectors\n");
 			char* second_instance = strtok(NULL, " \n");
+
+			if (second_instance == NULL)
+			{
+				print_error(INSTANCE_UNKNOWN, files->output);
+				continue;
+			}
+
 			GenericArrayT** array_instance2 = get_generic_array(arrays, second_instance, files->output);
 
 			if (array_instance2 == NULL || *array_instance2 == NULL)

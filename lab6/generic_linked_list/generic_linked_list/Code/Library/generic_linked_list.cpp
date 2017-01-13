@@ -2,7 +2,7 @@
 
 /*
 author: David
-file name: generic_linked_list
+file name: generic_linked_list.cpp
 file creation date: 2016-12-14 15:10:43
 */
 

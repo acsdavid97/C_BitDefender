@@ -1,7 +1,0 @@
-CreateVector A
-AddVectorItems A
-5
-9 5 4 7 1
-PrintVector A
-SortVector A
-PrintVector A

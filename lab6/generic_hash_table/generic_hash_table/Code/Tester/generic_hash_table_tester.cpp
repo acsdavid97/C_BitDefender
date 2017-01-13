@@ -109,7 +109,7 @@ void print_error(ErrorCodeE error_code, FILE* file)
 			fprintf(file, "Error: Instance unknown\n");
 			break;
 		case DATA_STRUCTURE_OVERWRITTEN:
-			fprintf(file, "Error: a structure must be deleted before it can be created again\n");
+			fprintf(file, "Error: attempt to recreate an existing structure\n");
 			break;
 		case UNKNOWN_ERROR_OCCURED:
 			fprintf(file, "Uknown error.\n");
@@ -122,12 +122,6 @@ void print_error(ErrorCodeE error_code, FILE* file)
 
 GenericHashTableT** get_generic_table(GenericHashTableT** tables, char* instance, FILE* file)
 {
-	if (instance == NULL)
-	{
-		print_error(INSTANCE_UNKNOWN, file);
-		return NULL;
-	}
-
 	char letter = instance[0];
 
 	// check if it's valid
@@ -138,9 +132,36 @@ GenericHashTableT** get_generic_table(GenericHashTableT** tables, char* instance
 	return tables + letter;
 }
 
+//function which returns a hash function, based on string.
+unsigned int(*get_hash_function(char* string))(const void*)
+{
+	if (strcmp(string, "FirstHash\n") == 0)
+	{
+		return first_hash_for_GenericDataT;
+	}
+	else if (strcmp(string, "SecondHash\n") == 0)
+	{
+		return second_hash_for_GenericDataT;
+	}
+	return NULL;
+}
+
 void CreateHashTable(GenericHashTableT** table_instance, IOFilesT* files)
 {
-	*table_instance = create_empty_GenericHashTableT();
+	char buffer[BUFFER_SIZE];
+	char* trimmed_buffer = NULL;
+
+	fgets(buffer, BUFFER_SIZE, files->input);
+	//todo: fix
+	
+	unsigned int(*hash_function)(const void* element) = get_hash_function(buffer);
+
+	if (hash_function == NULL)
+	{
+		print_error(UNRECOGNIZED_HASH_FUNCTION, files->output);
+	}
+
+	*table_instance = create_empty_GenericHashTableT(hash_function);
 
 	if (*table_instance == NULL)
 	{
@@ -211,20 +232,6 @@ void SearchHashTableItem(GenericHashTableT* table_instance, IOFilesT* files, int
 
 	print_element(element_found, files->output);
 	fprintf(files->output, "\n");
-}
-
-//function which returns a hash function, based on string.
-unsigned int(*get_hash_function(char* string))(const void*)
-{
-	if (strcmp(string, "FirstHash\n") == 0)
-	{
-		return first_hash_for_GenericDataT;
-	}
-	else if (strcmp(string, "SecondHash\n") == 0)
-	{
-		return second_hash_for_GenericDataT;
-	}
-	return NULL;
 }
 
 void ReHashTable(GenericHashTableT* table_instance, IOFilesT* files)
@@ -332,6 +339,13 @@ void test_generic_hash_table(IOFilesT* files)
 		}
 
 		char* first_instance = strtok(NULL, " \n");
+
+		if (first_instance == NULL)
+		{
+			print_error(INSTANCE_UNKNOWN, files->output);
+			continue;
+		}
+
 		GenericHashTableT** table_instance = get_generic_table(tables, first_instance, files->output);
 
 		if (table_instance == NULL || 

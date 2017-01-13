@@ -1,9 +1,0 @@
-CreateVector A
-AddVectorItems A
-5
-1 3 7 6 9
-PrintVector A
-PutVectorItem A
-2
-10
-PrintVector A
