@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/dvd/git/C_BitDefender/random_tests/Clion_test/function.c
+function.h
+/home/dvd/git/C_BitDefender/random_tests/Clion_test/function.h
+
+/home/dvd/git/C_BitDefender/random_tests/Clion_test/function.h
+stdio.h
+-
+
+/home/dvd/git/C_BitDefender/random_tests/Clion_test/main.c
+stdio.h
+-
+function.h
+/home/dvd/git/C_BitDefender/random_tests/Clion_test/function.h
+

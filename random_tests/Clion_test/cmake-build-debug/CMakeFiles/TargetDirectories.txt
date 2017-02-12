@@ -1,0 +1,3 @@
+/home/dvd/git/C_BitDefender/random_tests/Clion_test/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/dvd/git/C_BitDefender/random_tests/Clion_test/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/dvd/git/C_BitDefender/random_tests/Clion_test/cmake-build-debug/CMakeFiles/Clion_test.dir
