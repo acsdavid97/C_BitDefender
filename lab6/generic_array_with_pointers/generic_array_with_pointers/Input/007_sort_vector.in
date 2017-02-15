@@ -1,0 +1,6 @@
+CreateVector A
+AddVectorItems A
+5
+-6 3 9 0 2
+SortVector A
+PrintVector A

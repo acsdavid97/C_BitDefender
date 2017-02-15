@@ -109,10 +109,92 @@ TreeNodeT* search_element_in_tree(GenericSearchTreeT* tree, void* element)
 	return search_element_recursively_in_tree(tree->root, element, tree->compare);
 }
 
+TreeNodeT* find_leftmost_subnode(TreeNodeT* subtree_root)
+{
+	if (subtree_root->left == NULL)
+	{
+		return subtree_root;
+	}
+
+	return find_leftmost_subnode(subtree_root->left);
+}
+
+TreeNodeT* find_rightmost_subnode(TreeNodeT* subtree_root)
+{
+	if (subtree_root->right == NULL)
+	{
+		return subtree_root;
+	}
+
+	return find_leftmost_subnode(subtree_root->right);
+}
+
+TreeNodeT* delete_element_recursively_from_tree(TreeNodeT* subtree_root, void* element,
+	int(*compare)(const void* a, const void* b), void** element_deleted)
+{
+	if (subtree_root == NULL)
+	{
+		//element not found
+		return NULL;
+	}
+	if (compare(element, subtree_root->element) == 0)
+	{
+		//element to be deleted found
+		TreeNodeT* temp = NULL;
+		if (subtree_root->left != NULL && subtree_root->right != NULL)
+		{
+			//node has two children
+			temp = find_leftmost_subnode(subtree_root);
+			subtree_root->element = temp->element;
+			subtree_root->left = delete_element_recursively_from_tree(subtree_root->left,
+				element, compare, element_deleted);
+		}
+
+		if (subtree_root->left == NULL && subtree_root->right != NULL)
+		{
+			*element_deleted = subtree_root->element;
+			return subtree_root->right;
+		}
+
+		if (subtree_root->left != NULL && subtree_root->right == NULL)
+		{
+			*element_deleted = subtree_root->element;
+			return subtree_root->left;
+		}
+		
+		if (subtree_root->left == NULL && subtree_root->right == NULL)
+		{
+			*element_deleted = subtree_root->element;
+			return NULL;
+		}
+	}
+
+	if (compare(element, subtree_root->element) < 0)
+	{
+		//element in left subtree
+		subtree_root->left = delete_element_recursively_from_tree(subtree_root->left,
+			element, compare, element_deleted);
+	}
+	if (compare(element, subtree_root->element) > 0)
+	{
+		subtree_root->right = delete_element_recursively_from_tree(subtree_root->right,
+			element, compare, element_deleted);
+	}
+
+	return subtree_root;
+}
+
 void* delete_element_from_tree(GenericSearchTreeT* tree, void* element)
 {
-	//TODO: implement
-	return NULL;
+	void* deleted_element = NULL;
+	tree->root = delete_element_recursively_from_tree(tree->root,
+		element, tree->compare, &deleted_element);
+	if (deleted_element == NULL)
+	{
+		return NULL;
+	}
+
+	return deleted_element;
 }
 
 void print_elements_recursively_in_tree(TreeNodeT* subtree_root, FILE* file, int level, void(*print_element)(const void *a, FILE* file))
@@ -191,6 +273,18 @@ void print_elements_in_postorder(GenericSearchTreeT* tree, FILE* file, void(*pri
 	fprintf(file, "\n");
 }
 
+void merge_trees_recursively(TreeNodeT* subtree_root, GenericSearchTreeT* destination_tree)
+{
+	if (subtree_root == NULL)
+	{
+		return;
+	}
+
+	merge_trees_recursively(subtree_root->left, destination_tree);
+	add_element_in_tree(destination_tree, subtree_root->element);
+	merge_trees_recursively(subtree_root->right, destination_tree);
+}
+
 
 ReturnCodeE merge_trees(GenericSearchTreeT* tree_destination, GenericSearchTreeT* tree_source)
 {
@@ -199,7 +293,8 @@ ReturnCodeE merge_trees(GenericSearchTreeT* tree_destination, GenericSearchTreeT
 		return COMPARE_FUNCTION_MISMATCH;
 	}
 
-	//TODO: implement
+	merge_trees_recursively(tree_source->root, tree_destination);
+	
 	return SUCCESS;
 }
 

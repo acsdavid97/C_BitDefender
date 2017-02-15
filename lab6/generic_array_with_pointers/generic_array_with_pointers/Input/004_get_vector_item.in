@@ -1,0 +1,14 @@
+CreateVector A
+AddVectorItems A
+5
+0 1 2 3 4
+PrintVector A
+GetVectorItem A
+4
+GetVectorItem A
+0
+GetVectorItem A
+5
+GetVectorItem A
+-1
+GetVectorItem A

@@ -1,0 +1,14 @@
+CreateLinkedList A
+
+AddLinkedListItem A
+1
+AddLinkedListItem A
+2
+AddLinkedListItem A
+3
+AddLinkedListItem A
+4
+AddLinkedListItem A
+5
+
+PrintLinkedList A

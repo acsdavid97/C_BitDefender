@@ -1,0 +1,20 @@
+Contents and short description of each file.
+
+000_nothing.in: that's right, that file is empty.
+    If you give this file as an argument to your program,
+    it should create 000_nothing.res and exit.
+
+001_heap_hello_world.in: creates heap, adds element to heap, prints heap 
+
+002_basic_error_messages.in: test if program can handle incorrect/missing instances
+    and incorrect commands.
+
+003_get_heap_top.in: tests if library can retrieve top element
+
+004_delete_heap_top.in: tests if library can delete top element 
+    
+005_delete_heap_item.in: tries to delete existing and not existing elements in heap
+
+006_merge_heaps.in: creates two heaps, prints them, merges them together, prints result.
+
+007_delete_heap.in : tests DeleteHeap -- tests delete in various ways.

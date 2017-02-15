@@ -1,0 +1,33 @@
+CreateBST A
+CreateBST B
+AddBSTItem A
+5
+AddBSTItem A
+4
+AddBSTItem A
+3
+AddBSTItem A
+7
+AddBSTItem A
+9
+AddBSTItem A
+8
+
+PrintBST A
+
+AddBSTItem B
+1
+AddBSTItem B
+2
+AddBSTItem B
+3
+AddBSTItem B
+0
+AddBSTItem B
+-1
+AddBSTItem B
+32
+PrintBST B
+
+MergeBSTs A B
+PrintBST A

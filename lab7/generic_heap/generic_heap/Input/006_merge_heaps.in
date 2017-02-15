@@ -1,0 +1,35 @@
+CreateHeap A
+CreateHeap B
+
+AddHeapItem A
+5
+AddHeapItem A
+-9
+AddHeapItem A
+0
+AddHeapItem A
+1
+AddHeapItem A
+4
+AddHeapItem A
+99
+
+PrintHeap A
+
+AddHeapItem B
+4
+AddHeapItem B
+-8
+AddHeapItem B
+-1
+AddHeapItem B
+45
+AddHeapItem B
+8
+AddHeapItem B
+9
+
+PrintHeap B
+
+MergeMinHeaps A B
+PrintHeap A

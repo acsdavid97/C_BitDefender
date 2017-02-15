@@ -1,0 +1,21 @@
+CreateHeap A
+
+AddHeapItem A
+-1
+AddHeapItem A
+1
+AddHeapItem A
+9
+AddHeapItem A
+0
+
+PrintHeap A
+
+GetHeapMin A
+
+AddHeapItem A
+-4
+GetHeapMin A
+AddHeapItem A
+-3
+GetHeapMin A

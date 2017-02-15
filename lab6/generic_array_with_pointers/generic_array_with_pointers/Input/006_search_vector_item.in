@@ -1,0 +1,10 @@
+CreateVector A
+AddVectorItems A
+5
+0 1 2 3 4
+SearchVectorItem A
+2
+SearchVectorItem A
+0
+SearchVectorItem A
+-1

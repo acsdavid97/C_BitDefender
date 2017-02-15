@@ -1,0 +1,22 @@
+CreateHashTable A
+FirstHash
+
+AddHashTableItem A
+1
+AddHashTableItem A
+22
+AddHashTableItem A
+333
+AddHashTableItem A
+4444
+AddHashTableItem A
+55555
+
+PrintHashTable A
+
+ReHashTable A
+SecondHash
+PrintHashTable A
+
+ReHashTable A
+Non existend hash func.

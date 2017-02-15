@@ -1,0 +1,24 @@
+CreateHashTable A
+FirstHash
+AddHashTableItem A
+0
+AddHashTableItem A
+1
+AddHashTableItem A
+2
+AddHashTableItem A
+3
+AddHashTableItem A
+4
+
+PrintHashTable A
+
+DeleteHashTableItem A
+4
+DeleteHashTableItem A
+0
+DeleteHashTableItem A
+1
+DeleteHashTableItem A
+-1
+PrintHashTable A

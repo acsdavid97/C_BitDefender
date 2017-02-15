@@ -1,0 +1,18 @@
+CreateVector A
+PutVectorItem A
+4
+1
+PutVectorItem A
+0
+2
+PutVectorItem A
+1
+3
+PutVectorItem A
+1
+4
+PutVectorItem A
+PrintVector A
+PutVectorItem A
+-1
+99

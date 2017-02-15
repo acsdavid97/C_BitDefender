@@ -1,0 +1,21 @@
+CreateHashTable A
+FirstHash
+
+AddHashTableItem A
+0
+AddHashTableItem A
+1
+AddHashTableItem A
+2
+AddHashTableItem A
+3
+AddHashTableItem A
+4
+
+PrintHashTable A
+SearchHashTableItem A
+2
+SearchHashTableItem A
+0
+SearchHashTableItem A
+-1

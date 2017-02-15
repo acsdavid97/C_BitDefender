@@ -1,0 +1,24 @@
+CreateHeap A
+
+AddHeapItem A
+-1
+AddHeapItem A
+1
+AddHeapItem A
+9
+AddHeapItem A
+0
+
+PrintHeap A
+
+DeleteHeapItem A
+3
+PrintHeap A
+
+DeleteHeapItem A
+-1
+PrintHeap A
+
+DeleteHeapItem A
+1
+PrintHeap A

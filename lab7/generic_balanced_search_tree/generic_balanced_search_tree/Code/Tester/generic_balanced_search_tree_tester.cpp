@@ -1,12 +1,12 @@
 #define _CRT_SECURE_NO_WARNINGS
 /*
 author: Acs David
-file name: generic_binary_search_tree_tester.cpp
+file name: generic_balanced_search_tree_tester.cpp
 file creation date: 2017-01-08 22:16:25
 */
 
 
-#include "generic_binary_search_tree_tester.h"
+#include "generic_balanced_search_tree_tester.h"
 
 IOFilesT* create_IOFilesT(const char* file_name)
 {
@@ -124,7 +124,7 @@ void print_error(ErrorCodeE error_code, FILE* file)
 	}
 }
 
-GenericSearchTreeT** get_generic_tree(GenericSearchTreeT** trees, char* instance, FILE* file)
+GenericBalancedSearchTreeT** get_generic_tree(GenericBalancedSearchTreeT** trees, char* instance, FILE* file)
 {
 	char letter = instance[0];
 
@@ -136,9 +136,9 @@ GenericSearchTreeT** get_generic_tree(GenericSearchTreeT** trees, char* instance
 	return trees + letter;
 }
 
-void CreateBST(GenericSearchTreeT** tree_instance, IOFilesT* files, int(*compare)(const void* a, const void* b))
+void CreateBST(GenericBalancedSearchTreeT** tree_instance, IOFilesT* files, int(*compare)(const void* a, const void* b))
 {
-	*tree_instance = create_empty_GenericSearchTreeT(compare);
+	*tree_instance = create_empty_GenericBalancedSearchTreeT(compare);
 
 	if (*tree_instance == NULL)
 	{
@@ -146,7 +146,7 @@ void CreateBST(GenericSearchTreeT** tree_instance, IOFilesT* files, int(*compare
 	}
 }
 
-void PrintBST(GenericSearchTreeT* tree_instance, IOFilesT* files,
+void PrintBST(GenericBalancedSearchTreeT* tree_instance, IOFilesT* files,
 	void(*print_generic_data)(const void *element, FILE* file))
 {
 	if (get_nr_of_elements_in_tree(tree_instance) <= 0)
@@ -159,7 +159,7 @@ void PrintBST(GenericSearchTreeT* tree_instance, IOFilesT* files,
 	print_elements_in_tree(tree_instance, files->output, print_generic_data);
 }
 
-void PreorderBST(GenericSearchTreeT* tree_instance, IOFilesT* files,
+void PreorderBST(GenericBalancedSearchTreeT* tree_instance, IOFilesT* files,
 	void(*print_generic_data)(const void *element, FILE* file))
 {
 	if (get_nr_of_elements_in_tree(tree_instance) <= 0)
@@ -172,7 +172,7 @@ void PreorderBST(GenericSearchTreeT* tree_instance, IOFilesT* files,
 	print_elements_in_postorder(tree_instance, files->output, print_generic_data);
 }
 	
-void InorderBST(GenericSearchTreeT* tree_instance, IOFilesT* files,
+void InorderBST(GenericBalancedSearchTreeT* tree_instance, IOFilesT* files,
 	void(*print_generic_data)(const void *element, FILE* file))
 {
 	if (get_nr_of_elements_in_tree(tree_instance) <= 0)
@@ -185,7 +185,7 @@ void InorderBST(GenericSearchTreeT* tree_instance, IOFilesT* files,
 	print_elements_in_inorder(tree_instance, files->output, print_generic_data);
 }
 
-void PostorderBST(GenericSearchTreeT* tree_instance, IOFilesT* files,
+void PostorderBST(GenericBalancedSearchTreeT* tree_instance, IOFilesT* files,
 	void(*print_generic_data)(const void *element, FILE* file))
 {
 	if (get_nr_of_elements_in_tree(tree_instance) <= 0)
@@ -198,7 +198,7 @@ void PostorderBST(GenericSearchTreeT* tree_instance, IOFilesT* files,
 	print_elements_in_postorder(tree_instance, files->output, print_generic_data);
 }
 
-void AddBSTItem(GenericSearchTreeT* tree_instance, IOFilesT* files, void* (*read_and_create_generic_data)(FILE* file))
+void AddBSTItem(GenericBalancedSearchTreeT* tree_instance, IOFilesT* files, void* (*read_and_create_generic_data)(FILE* file))
 {
 	void* element = read_and_create_generic_data(files->input);
 	ReturnCodeE return_code = add_element_in_tree(tree_instance, element);
@@ -215,11 +215,11 @@ void AddBSTItem(GenericSearchTreeT* tree_instance, IOFilesT* files, void* (*read
 		break;
 	}
 }
-void SearchBSTItem(GenericSearchTreeT* tree_instance, IOFilesT* files, 
+void SearchBSTItem(GenericBalancedSearchTreeT* tree_instance, IOFilesT* files, 
 	void* (*read_and_create_generic_data)(FILE* file), void(*print_element)(const void *a, FILE* file))
 {
 	void* element = read_and_create_generic_data(files->input);
-	TreeNodeT* node_found = search_element_in_tree(tree_instance, element);
+	BTreeNodeT* node_found = search_element_in_tree(tree_instance, element);
 	if (node_found == NULL)
 	{
 		fprintf(files->output, "Element is not in tree\n");
@@ -230,7 +230,7 @@ void SearchBSTItem(GenericSearchTreeT* tree_instance, IOFilesT* files,
 	fprintf(files->output, "\n");
 }
 
-void DeleteBSTItem(GenericSearchTreeT* tree_instance, IOFilesT* files, void(*free_generic_data)(void* generic_data),
+void DeleteBSTItem(GenericBalancedSearchTreeT* tree_instance, IOFilesT* files, void(*free_generic_data)(void* generic_data),
 	void* (*read_and_create_generic_data)(FILE* file), void(*print_element)(const void *a, FILE* file))
 {
 	void* element = read_and_create_generic_data(files->input);
@@ -248,7 +248,7 @@ void DeleteBSTItem(GenericSearchTreeT* tree_instance, IOFilesT* files, void(*fre
 	free(element);
 }
 
-void MergeBSTs(GenericSearchTreeT** tree_instance, GenericSearchTreeT**  tree_instance2, IOFilesT* files)
+void MergeBSTs(GenericBalancedSearchTreeT** tree_instance, GenericBalancedSearchTreeT**  tree_instance2, IOFilesT* files)
 {
 	ReturnCodeE return_code = merge_trees(*tree_instance, *tree_instance2);
 
@@ -270,13 +270,13 @@ void MergeBSTs(GenericSearchTreeT** tree_instance, GenericSearchTreeT**  tree_in
 	}
 }
 
-void HeightBST(GenericSearchTreeT* tree_instance, IOFilesT* files)
+void HeightBST(GenericBalancedSearchTreeT* tree_instance, IOFilesT* files)
 {
 	int height = height_of_subtree(tree_instance->root);
 	fprintf(files->output, "%d\n", height);
 }
 
-void DeleteBST(GenericSearchTreeT** tree_instance, IOFilesT* files, void(*free_generic_data)(void* generic_data))
+void DeleteBST(GenericBalancedSearchTreeT** tree_instance, IOFilesT* files, void(*free_generic_data)(void* generic_data))
 {
 	delete_elements_in_tree(*tree_instance, free_generic_data);
 	free(*tree_instance);
@@ -335,10 +335,10 @@ PossibleCommandsE get_command(char* command)
 	}
 }
 
-void test_generic_binary_search_tree(IOFilesT* files)
+void test_generic_balanced_search_tree(IOFilesT* files)
 {
-	//256 trees, so each character corresponds to a GenericSearchTreeT.
-	GenericSearchTreeT** trees = (GenericSearchTreeT**)calloc(256, sizeof(GenericSearchTreeT*));
+	//256 trees, so each character corresponds to a GenericBalancedSearchTreeT.
+	GenericBalancedSearchTreeT** trees = (GenericBalancedSearchTreeT**)calloc(256, sizeof(GenericBalancedSearchTreeT*));
 	if (trees == NULL)
 	{
 		fprintf(files->output, "Fatal error: could not allocate memory for trees\n");
@@ -373,7 +373,7 @@ void test_generic_binary_search_tree(IOFilesT* files)
 			print_error(INSTANCE_UNKNOWN, files->output);
 			continue;
 		}
-		GenericSearchTreeT** tree_instance = get_generic_tree(trees, first_instance, files->output);
+		GenericBalancedSearchTreeT** tree_instance = get_generic_tree(trees, first_instance, files->output);
 
 		if (tree_instance == NULL || 
 			(*tree_instance == NULL && command != CREATE_TREE))
@@ -427,7 +427,7 @@ void test_generic_binary_search_tree(IOFilesT* files)
 				continue;
 			}
 
-			GenericSearchTreeT** tree_instance2 = get_generic_tree(trees, second_instance, files->output);
+			GenericBalancedSearchTreeT** tree_instance2 = get_generic_tree(trees, second_instance, files->output);
 
 			if (tree_instance2 == NULL || *tree_instance2 == NULL)
 			{

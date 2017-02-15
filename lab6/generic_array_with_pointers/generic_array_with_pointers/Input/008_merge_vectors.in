@@ -1,0 +1,10 @@
+CreateVector A
+CreateVector B
+AddVectorItems A
+5
+-6 3 9 0 2
+AddVectorItems B
+3
+10 45 99
+MergeVectors B A
+PrintVector B

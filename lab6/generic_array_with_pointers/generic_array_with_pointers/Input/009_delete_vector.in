@@ -1,0 +1,10 @@
+CreateVector A
+DeleteVector A
+CreateVector A
+AddVectorItems A
+5
+0 2 4 6 8
+PrintVector A
+DeleteVector A
+PrintVector A
+DeleteVector A

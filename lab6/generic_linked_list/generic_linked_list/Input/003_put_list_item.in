@@ -1,0 +1,20 @@
+CreateLinkedList A
+
+PutLinkedListItem A
+4
+1
+PutLinkedListItem A
+0
+2
+PutLinkedListItem A
+1
+3
+PutLinkedListItem A
+1
+4
+
+PutLinkedListItem A
+PrintLinkedList A
+PutLinkedListItem A
+-1
+99

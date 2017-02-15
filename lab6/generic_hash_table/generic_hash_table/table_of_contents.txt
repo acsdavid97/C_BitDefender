@@ -1,0 +1,18 @@
+Contents and short description of each file.
+
+000_nothing.in: that's right, that file is empty.
+    If you give this file as an argument to your program,
+    it should create 000_nothing.res and exit.
+
+001_hash_table_hello_world.in: creates linked hash table, adds element to hash table, prints hash table 
+
+002_basic_error_messages.in: test if program can handle incorrect/missing instances
+    and incorrect commands.
+
+003_delete_hash_table_item.in : tries to delete existing and not existing elements in hash table
+
+004_search_hash_table_item.in : tries to search for existing and not existing elements in hash table
+
+005_rehash_hash_table_item.in : adds element to hash table, then rehashes it. Unknown hash function.
+
+006_delete_hash_table.in : tests DeleteHashTable -- tests delete in various ways.

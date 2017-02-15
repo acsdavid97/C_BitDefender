@@ -1,0 +1,27 @@
+Contents and short description of each file.
+
+000_nothing.in: that's right, that file is empty.
+    If you give this file as an argument to your program,
+    it should create 000_nothing.res and exit.
+
+001_list_hello_world.in: creates linked list, adds element to linked list, prints linked list 
+
+002_basic_error_messages.in: test if program can handle incorrect/missing instances
+    and incorrect commands.
+
+003_put_list_item.in : tests PutlistItem -- index out of bounds, 
+    put at beginning, put at end, put in the middle of the linked list, missing value.
+
+004_get_list_item.in : tests GetlistItem -- index out of bounds, missing value
+
+005_delete_list_item.in : tests DeletelistItem -- delete existing, not existing value,
+    missing value.
+
+006_search_list_item.in : tests SearchlistItem -- search for elements in the linked list,
+    and elements not in the linked list.
+
+007_sort_list.in : tests Sortlist -- sorts an unordered linked list.
+
+008_merge_lists.in : tests MergeVectos -- merges two lists, and prints the result
+
+009_delete_list.in : test Deletelist -- tests delete in various ways.

@@ -1,0 +1,22 @@
+CreateLinkedList A
+DeleteLinkedList A
+CreateLinkedList A
+
+AddLinkedListItem A
+5
+AddLinkedListItem A
+-9
+AddLinkedListItem A
+0
+AddLinkedListItem A
+1
+AddLinkedListItem A
+4
+AddLinkedListItem A
+99
+
+PrintLinkedList A
+DeleteLinkedList A
+
+PrintLinkedList A
+DeleteLinkedList A
