@@ -38,17 +38,17 @@ int get_nr_of_elements_in_heap(GenericHeapT* heap)
 	return heap->array->length;
 }
 
-int get_parent_index(int index)
+int inline get_parent_index(int index)
 {
 	return (index - 1) / 2;
 }
 
-int get_left_child_index(int index)
+int inline get_left_child_index(int index)
 {
 	return 2 * index + 1;
 }
 
-int get_right_child_index(int index)
+int inline get_right_child_index(int index)
 {
 	return 2 * index + 2;
 }
