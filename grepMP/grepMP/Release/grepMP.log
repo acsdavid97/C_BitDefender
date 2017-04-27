@@ -1,0 +1,9 @@
+﻿  GREPMP.C
+GREPMP.C(110): warning C4018: '<': signed/unsigned mismatch
+     Creating library D:\git\C_BitDefender\grepMP\Release\grepMP.lib and object D:\git\C_BitDefender\grepMP\Release\grepMP.exp
+  Generating code
+  2 of 10 functions (20.0%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  grepMP.vcxproj -> D:\git\C_BitDefender\grepMP\Release\grepMP.exe

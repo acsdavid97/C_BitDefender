@@ -1,0 +1,18 @@
+#ifndef COMMUNICATION_PROTOCOL_H
+#define  COMMUNICATION_PROTOCOL_H
+
+typedef enum CommandEnum {
+	INITIALIZE_CONNECTION, CONNECTION_ACCEPTED, CONNECTION_REJECTED,
+	AUTHENTICATE, AUTH_SUCCESSFUL, AUTH_REJECTED, 
+	ENCRYPT_DATA, DATA_ENCRYPTED,
+	TERMINATE_CONNECTION
+}CommandE;
+
+typedef struct InitStruct {
+	CommandE command;
+	DWORD cbUsernameNrBytes;
+	DWORD cbPasswordNrBytes;
+	DWORD cbKeyNrBytes;
+}InitT;
+
+#endif

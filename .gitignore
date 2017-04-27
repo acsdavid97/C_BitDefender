@@ -47,3 +47,13 @@ Debug/
 *.suo
 *.vcxproj
 *.opendb
+ipch/
+*.pdb
+*.tlog
+*.vcxproj.user
+*.exe
+*.exp
+*.ipdb
+*.iobj
+*.ipch
+*.vcproj
