@@ -6,44 +6,45 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
-#include "Everything.h"
-#include "../CommunicationProtocol.h"
+#include "CommunicationProtocol.h"
 
 #define BUFFSIZE 4096
 
 PTCHAR sFilePath = NULL;
 PTCHAR sUserName = _T("david");
 PTCHAR sPassword = _T("defaultpassword");
-PTCHAR sPipeName = _T("defaultpipename");
 PTCHAR sOutPutPath = NULL;
 PTCHAR sKey = NULL;
 
-void printUsage()
+VOID printUsage()
 {
 	_tprintf(_T("Usage:\n"));
 	_tprintf(_T("    program.exe filepath=<filepath> [user=<username> pass=<password> pipe=<pipename> outputpath=<outputpath> key=<encryption key>]\n"));
 	_tprintf(_T("        where <filepath> is the path of the file to be encrypted\n"));
 	_tprintf(_T("        where <username> is the username of the client requesting the encryption, default value: david\n"));
 	_tprintf(_T("        where <password> is the password of the client requesting the encryption, default value: defaultpassword\n"));
-	_tprintf(_T("        where <pipename> is the name of the pipe used to connect to the server, if it is not supplied a default value is used.\n"));
 	_tprintf(_T("        where <outputpath> is the path of the resulting encryped file, if it is not supplied <filepath>.enc is used.\n"));
 	_tprintf(_T("        where <key> is the encryption key used to ecrypt the file, if it not supplied <password is used.\n"));
 	_tprintf(_T("    program.exe /h for this message\n"));
 }
 
 
-PTCHAR getRealPipeName(PTCHAR sPipeName)
+PTCHAR getRealPipeName()
 {
-	PTCHAR sRealPipeName = (PTCHAR)malloc(sizeof(TCHAR) * (_tcslen(sPipeName) + 10));
-	if (sRealPipeName == NULL) {
-		return NULL;
+	FILE* pipeFile = _tfopen(_T("pipe.txt"), "r");
+	if (pipeFile == NULL) {
+		_tprintf(_T("could not open file\n"));
+		exit(5);
 	}
-	_tcscpy(sRealPipeName, _T("\\\\.\\pipe\\"));
-	_tcscat(sRealPipeName, sPipeName);
-	return sRealPipeName;
+
+	PTCHAR realPipeName = (PTCHAR)malloc(sizeof(TCHAR) * 1024);
+
+	_fgetts(realPipeName, 1024, pipeFile);
+	fclose(pipeFile);
+	return realPipeName;
 }
 
-void parseArgument(PTCHAR arg)
+VOID parseArgument(PTCHAR arg)
 {
 	if (_tcsncmp(arg, _T("filepath="), 9) == 0) {
 		sFilePath = arg + 9;
@@ -51,8 +52,6 @@ void parseArgument(PTCHAR arg)
 		sUserName = arg + 5;
 	} else if (_tcsncmp(arg, _T("pass="), 5) == 0) {
 		sPassword = arg + 5;
-	} else if (_tcsncmp(arg, _T("pipe="), 5) == 0) {
-		sPipeName = arg + 5;
 	} else if (_tcsncmp(arg, _T("outputpath="), 11) == 0) {
 		sOutPutPath = arg + 11;
 	} else if (_tcsncmp(arg, _T("key="), 4) == 0) {
@@ -68,7 +67,7 @@ void parseArgument(PTCHAR arg)
 	}
 }
 
-void validateArguments()
+VOID validateArguments()
 {
 	if (sFilePath == NULL || _tcslen(sFilePath) <= 0) {
 		_tprintf(_T("Error: file path not specified\n"));
@@ -103,19 +102,19 @@ void validateArguments()
 	}
 }
 
-void printArguments()
+VOID printArguments()
 {
 	_tprintf(_T("file path: \"%s\"\n"), sFilePath);
 	_tprintf(_T("user name: \"%s\"\n"), sUserName);
 	_tprintf(_T("password: \"%s\"\n"), sPassword);
 	_tprintf(_T("output path: \"%s\"\n"), sOutPutPath);
-	_tprintf(_T("pipe name: \"%s\"\n"), sPipeName);
 	_tprintf(_T("encryption key: \"%s\"\n"), sKey);
 }
 
 HANDLE connectToServer()
 {
-	PTCHAR sRealPipeName = getRealPipeName(sPipeName);
+	PTCHAR sRealPipeName = getRealPipeName();
+	_tprintf(_T("pipename: \"%s\"\n"), sRealPipeName);
 	DWORD dwMode;
 	BOOL bSuccess;
 	HANDLE hPipe;
@@ -165,61 +164,72 @@ HANDLE connectToServer()
 	return hPipe;
 }
 
-BOOL sendPacket(HANDLE hPipe, PTCHAR buff, DWORD cbPacketLen)
-{
-	DWORD cbWritten;
-	BOOL bSuccess;
-	DWORD command = ENCRYPT_DATA;
 
-	bSuccess = WriteFile(
-		hPipe,
-		&command,
-		sizeof(DWORD),
-		&cbWritten,
-		NULL
-	);
 
-	if (!bSuccess) {
-		return FALSE;
-	}
-
-	bSuccess = WriteFile(
-		hPipe,
-		&cbPacketLen,
-		sizeof(DWORD),
-		&cbWritten,
-		NULL
-	);
-
-	if (!bSuccess) {
-		return FALSE;
-	}
-
-	bSuccess = WriteFile(
-		hPipe,
-		buff,
-		cbPacketLen,
-		&cbWritten,
-		NULL
-	);
-
-	return bSuccess;
-}
-
-BOOL getPacket(HANDLE hPipe, PTCHAR buff, DWORD cbPacketLen)
+BOOL readAndSendFile(HANDLE hFileSource, HANDLE hPipe)
 {
 	DWORD cbRead;
 	BOOL bSuccess;
+	TCHAR buffer[BUFFSIZE];
 
-	bSuccess = ReadFile(
-		hPipe,
-		buff,
-		cbPacketLen,
-		&cbRead,
-		NULL
-	);
+	while (true) {
+		bSuccess = ReadFile(
+			hFileSource,
+			buffer,
+			BUFFSIZE,
+			&cbRead,
+			NULL
+		);
 
-	return bSuccess;
+		if (!bSuccess) {
+			_tprintf(_T("Could not read from source file\n"));
+			return FALSE;
+		}
+
+		if (cbRead == 0) {
+			// at the end of file
+			_tprintf(_T("Successfully arrived at the end of file\n"));
+			return TRUE;
+		}
+
+		if (!sendPacket(hPipe, buffer, cbRead)) {
+			_tprintf(_T("could not send packet\n"));
+			return FALSE;
+		}
+	}
+}
+
+BOOL getPacketsAndWriteFile(HANDLE hPipe, HANDLE hFileDest)
+{
+	BOOL bSuccess;
+	DWORD cbReadOrWritten;
+	DWORD cbPacketSize;
+	TCHAR buff[BUFFSIZE];
+
+	while (true) {
+
+		bSuccess = getNextPacket(hPipe, buff, &cbPacketSize);
+		if (!bSuccess) {
+			return FALSE;
+		}
+
+		if (cbPacketSize == 0) {
+			//succesfully read all the packets
+			return TRUE;
+		}
+		
+		bSuccess = WriteFile(
+			hFileDest,
+			buff,
+			cbPacketSize,
+			&cbReadOrWritten,
+			NULL
+		);
+
+		if (!bSuccess) {
+			return FALSE;
+		}
+	}
 }
 
 /*
@@ -228,57 +238,28 @@ BOOL getPacket(HANDLE hPipe, PTCHAR buff, DWORD cbPacketLen)
  */
 BOOL encryptFileWithServer(HANDLE hFileSource, HANDLE hPipe, HANDLE hFileDest)
 {
-	DWORD cbRead = 1;
 	BOOL bSuccess;
-	TCHAR buffer[BUFFSIZE];
 	DWORD cbWritten;
-	DWORD dwResponse = TERMINATE_CONNECTION;
+	DWORD dwResponse;
 
-	while(true) {
-		bSuccess = ReadFile(
-			hFileSource,
-			buffer,
-			BUFFSIZE,
-			&cbRead,
-			NULL
-		);
-		if (!bSuccess) {
-			_tprintf(_T("Could not read from source file\n"));
-			break;
-		}
+	bSuccess = readAndSendFile(hFileSource, hPipe);
 
-		if (cbRead == 0) {
-			// at the end of file
-			_tprintf(_T("Successfully arrived at the end of file\n"));
-			bSuccess = TRUE;
-			break;
-		}
+	dwResponse = (bSuccess) ? LAST_PACKET : TERMINATE_CONNECTION;
 
-		if (!sendPacket(hPipe, buffer, cbRead)) {
-			_tprintf(_T("could not send packet\n"));
-			bSuccess = FALSE;
-			break;
-		}
+	// send appropiate response to server
+	bSuccess = WriteFile(
+		hPipe,
+		&dwResponse,
+		sizeof(DWORD),
+		&cbWritten,
+		NULL
+	);
 
-		if (!getPacket(hPipe, buffer, cbRead)) {
-			_tprintf(_T("could not get packet\n"));
-			bSuccess = FALSE;
-			break;
-		}
-
-		bSuccess = WriteFile(
-			hFileDest,
-			buffer,
-			cbRead,
-			&cbWritten,
-			NULL
-		);
-
-		if (!bSuccess) {
-			_tprintf(_T("could not read\n"));
-			break;
-		}
+	if (!bSuccess) {
+		return FALSE;
 	}
+
+	bSuccess = getPacketsAndWriteFile(hPipe, hFileDest);
 
 	WriteFile(
 		hPipe,
@@ -411,9 +392,11 @@ BOOL sendEncryptionKey(HANDLE hPipe)
  * Once authenticated the client sends the bytes of the file, whose path is specified by the user, to the server for ecryption.
  * The ecrypted file is saved to the file path specified by the user.
  */
-int _tmain(int argc, PTCHAR argv[])
+INT _tmain(INT argc, PTCHAR argv[])
 {
-	for(int i = 1; i < argc; i++) {
+	INT ERROR_CODE = 0;
+
+	for(INT i = 1; i < argc; i++) {
 		parseArgument(argv[i]);
 	}
 
@@ -447,10 +430,9 @@ int _tmain(int argc, PTCHAR argv[])
 
 	if (hFileDest == INVALID_HANDLE_VALUE) {
 		_tprintf(_T("Could not create destination file\n"));
-		CloseHandle(hFileSource);
-		exit(1);
+		ERROR_CODE = 1;
+		goto CLEAN_UP_SOURCE;
 	}
-
 
 	_tprintf(_T("Attempting to connect to pipe\n"));
 	HANDLE hPipe = connectToServer();
@@ -458,40 +440,38 @@ int _tmain(int argc, PTCHAR argv[])
 
 	if (!initilizeConnection(hPipe)) {
 		_tprintf(_T("Could not initialize connection (server is probably busy)\n"));
-		CloseHandle(hFileSource);
-		CloseHandle(hFileDest);
-		exit(2);
+		ERROR_CODE = 2;
+		goto CLEAN_UP_WITHOUT_PIPE;
 	}
 	_tprintf(_T("Initialized connection\n"));
 
 	if (!authenthicate(hPipe)) {
 		_tprintf(_T("Authentication not successful!\n"));
-		CloseHandle(hPipe);
-		CloseHandle(hFileSource);
-		CloseHandle(hFileDest);
-		exit(3);
+		ERROR_CODE = 3;
+		goto CLEAN_UP;
 	}
 	_tprintf(_T("Authenticated successfully\n"));
 
 	if (!sendEncryptionKey(hPipe)) {
 		_tprintf(_T("An error occoured while sending encryption key\n"));
-		CloseHandle(hPipe);
-		CloseHandle(hFileSource);
-		CloseHandle(hFileDest);
-		exit(4);
+		ERROR_CODE = 4;
+		goto CLEAN_UP;
 	}
 	_tprintf(_T("beginning encrypting the file\n"));
 
 	if(!encryptFileWithServer(hFileSource, hPipe, hFileDest)) {
 		_tprintf(_T("An error occured while ecrypting\n"));
-		CloseHandle(hPipe);
-		CloseHandle(hFileSource);
-		CloseHandle(hFileDest);
-		exit(5);
+		ERROR_CODE = 5;
+		goto CLEAN_UP;
 	}
 	_tprintf(_T("Encryption completed without error\n"));
 
+CLEAN_UP:
 	CloseHandle(hPipe);
-	CloseHandle(hFileSource);
+CLEAN_UP_WITHOUT_PIPE:
 	CloseHandle(hFileDest);
+CLEAN_UP_SOURCE:
+	CloseHandle(hFileSource);
+
+	return ERROR_CODE;
 }

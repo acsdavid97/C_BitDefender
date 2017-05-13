@@ -6,25 +6,37 @@
 #include "Everything.h"
 
 typedef struct EncryptDataTag{
-	TCHAR *toBeEncrypted;
+	PTCHAR toBeEncrypted;
 	DWORD dwBuffLen;
-	TCHAR *encryptionKey;
+	PTCHAR encryptionKey;
 	DWORD dwKeyLen;
-	DWORD dwStartPos;
-	CRITICAL_SECTION *criticalSection;
-	CONDITION_VARIABLE *conditionVariable;
+	LPCRITICAL_SECTION pCriticalSection;
+	PCONDITION_VARIABLE pConditionVariable;
 	DWORD dwStatus;
+	DWORD dwIndex;
 }EncryptDataT, *LPEncryptDataT;
 
 typedef struct SyncCircQueueTag {
 	DWORD dwHead;
 	DWORD dwTail;
-	EncryptDataT **data;
+	LPEncryptDataT *data;
 	DWORD dwSize;
 	CRITICAL_SECTION criticalSection;
 	CONDITION_VARIABLE cvNotFull;
 	CONDITION_VARIABLE cvNotEmpty;
 }SyncCircQueueT, *LPSyncCircQueueT;
+
+LPEncryptDataT create_EcryptData(
+	HANDLE hHeap, 
+	PTCHAR toBeEncrypted,
+	DWORD dwBufflen,
+	PTCHAR encryptionKey,
+	DWORD dwKeyLen,
+	LPCRITICAL_SECTION pCriticalSection,
+	PCONDITION_VARIABLE pConditionVariable
+);
+
+VOID free_EncryptData(HANDLE hHeap, LPEncryptDataT lpEncryptData);
 
 VOID pushSyncQueue(LPSyncCircQueueT queue, LPEncryptDataT data);
 

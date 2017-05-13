@@ -1,0 +1,32 @@
+validarea datelor!! ->robustete
+mentenanta 
+comentarii, denumire variabile: hungarian notation, valori constante: #define 
+erori=> definesc starile in care sa ajunga programul ERROR_INVALID_
+
+
+SAL:
+
+int
+nume_functie(_ _in DWORD par1, 
+	     _ _inout LPDWORD par2, 
+	     _ _out ....);
+
+
+structura cu et nume este declarata
+var definesc -> aloc spatiu
+
+
+typedef -> definesc o structura cu etic nume si cu NUME
+
+typedef struct student_{
+
+}student, *pstudent;
+
+
+TRATAREA EXCEPTIILOR CURS!!!
+try except
+try finally
+
+code compete
+
+get last error  vs perror

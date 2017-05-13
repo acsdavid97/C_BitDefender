@@ -7,9 +7,10 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include "Everything.h"
-#include "../CommunicationProtocol.h"
+#include "CommunicationProtocol.h"
 #include "UserManagement.h"
 #include "EncSyncQueue.h"
+#include <crtdbg.h>
 
 #define BUFFSIZE 4096
 
@@ -125,88 +126,17 @@ VOID parseArgument(PTCHAR arg)
 }
 
 /*
- * Gets the next packet from the pipe.
- * 
- * @param hPipe: handle to the pipe
- * @param buff: buffer where the packet will be stored
- * @return the number of bytes read
-*/
-DWORD getNextPacket(HANDLE hPipe, PTCHAR buff)
-{
-	BOOL bSuccess;
-	DWORD cbToBeRead;
-	DWORD cbRead;
-	DWORD command;
-
-	bSuccess = ReadFile(
-		hPipe,
-		&command,
-		sizeof(DWORD),
-		&cbRead,
-		NULL
-	);
-
-	if (!bSuccess || command != ENCRYPT_DATA) {
-		return 0;
-	}
-
-	bSuccess = ReadFile(
-		hPipe,
-		&cbToBeRead,
-		sizeof(DWORD),
-		&cbRead,
-		NULL
-	);
-
-	if (!bSuccess) {
-		return 0;
-	}
-
-	bSuccess = ReadFile(
-		hPipe,
-		buff,
-		cbToBeRead,
-		&cbRead,
-		NULL
-	);
-
-	if (!bSuccess) {
-		return 0;
-	}
-
-	return cbRead;
-}
-
-/*
  * Encrypts a buff with key using xor.
  */
-DWORD encryptData(PTCHAR buff, DWORD dwBuffLen, PTCHAR key, DWORD dwKeyLen, DWORD dwStartPos)
+VOID encryptData(PTCHAR buff, DWORD dwBuffLen, PTCHAR key, DWORD dwKeyLen)
 {
 	DWORD i;
-	DWORD dwKeyIndex = 0;
+	DWORD dwKeyIndex;
 
 	for(i = 0; i < dwBuffLen; i++) {
-		dwKeyIndex = (i + dwStartPos) % dwKeyLen;
+		dwKeyIndex = i % dwKeyLen;
 		buff[i] ^= key[dwKeyIndex];
 	}
-
-	return dwKeyIndex;
-}
-
-/*
- * Sends a packet through the pipe.
- */
-VOID sendPacket(HANDLE hPipe, PTCHAR buff, DWORD cbPacketLen)
-{
-	DWORD cbWritten;
-
-	WriteFile(
-		hPipe,
-		buff,
-		cbPacketLen,
-		&cbWritten,
-		NULL
-	);
 }
 
 /*
@@ -216,18 +146,19 @@ VOID sendPacket(HANDLE hPipe, PTCHAR buff, DWORD cbPacketLen)
  */
 DWORD WINAPI workerThread(LPVOID arg)
 {
-	EncryptDataT* encData;
+	LPEncryptDataT encData;
+
 	while(true) {
 		popSyncQueue(gQueue, &encData);
-		encData->dwStartPos = encryptData(encData->toBeEncrypted, encData->dwBuffLen,
-			encData->encryptionKey, encData->dwKeyLen, encData->dwStartPos);
+		encryptData(encData->toBeEncrypted, encData->dwBuffLen,
+			encData->encryptionKey, encData->dwKeyLen);
 
-		EnterCriticalSection(encData->criticalSection);
+		EnterCriticalSection(encData->pCriticalSection);
 
 		encData->dwStatus = DATA_ENCRYPTED;
 		
-		LeaveCriticalSection(encData->criticalSection);
-		WakeConditionVariable(encData->conditionVariable);
+		LeaveCriticalSection(encData->pCriticalSection);
+		WakeConditionVariable(encData->pConditionVariable);
 	}
 }
 
@@ -241,40 +172,116 @@ DWORD WINAPI serveClient(LPClientThreadT clientThreadArg)
 	TCHAR buff[BUFFSIZE];
 	DWORD cbPacketSize;
 	DWORD dwKeyLen = _tcslen(clientThreadArg->sEncryptionKey);
-	DWORD dwPrevOffset = 0;
-	EncryptDataT encryptDataField;
 	CONDITION_VARIABLE conditionVariable;
 	CRITICAL_SECTION criticalSection;
 	DWORD cbTotalEncrypted = 0;
+	BOOL bSuccess;
+	DWORD dwIndex = 0;
+	DWORD dwEcryptArraySize = 1024;
+	DWORD dwResponse;
+	DWORD cbWritten;
 
 	InitializeCriticalSection(&criticalSection);
 	InitializeConditionVariable(&conditionVariable);
 
-	encryptDataField.criticalSection = &criticalSection;
-	encryptDataField.conditionVariable = &conditionVariable;
-	encryptDataField.encryptionKey = clientThreadArg->sEncryptionKey;
-	encryptDataField.dwKeyLen = dwKeyLen;
-	encryptDataField.dwStatus = DATA_NOT_ENCRYPTED;
-	encryptDataField.toBeEncrypted = buff;
+	HANDLE hHeap = HeapCreate(
+		0, //default options
+		0, // default initial size: one page
+		0 // default max size (allows increase of heap)
+	);
 
-	while ((cbPacketSize = getNextPacket(clientThreadArg->hPipe, buff)) != 0) {
-
-		encryptDataField.dwBuffLen = cbPacketSize;
-		encryptDataField.dwStartPos = dwPrevOffset;
-
-		pushSyncQueue(gQueue, &encryptDataField);
-
-		EnterCriticalSection(&criticalSection);
-
-		while (encryptDataField.dwStatus != DATA_ENCRYPTED) {
-			SleepConditionVariableCS(encryptDataField.conditionVariable, encryptDataField.criticalSection, INFINITE);
-		}
-		dwPrevOffset = encryptDataField.dwStartPos;
-		LeaveCriticalSection(&criticalSection);
-
-		sendPacket(clientThreadArg->hPipe, buff, cbPacketSize);
-		cbTotalEncrypted += cbPacketSize;
+	if (hHeap == NULL) {
+		return 1;
 	}
+
+	LPEncryptDataT* lplpEncryptDataT = (LPEncryptDataT*)HeapAlloc(
+		hHeap,
+		0,
+		sizeof(LPEncryptDataT) * dwEcryptArraySize);
+
+	while (true) {
+		bSuccess = getNextPacket(clientThreadArg->hPipe, buff, &cbPacketSize);
+
+		if (!bSuccess) {
+			return 2;
+		}
+
+		if (cbPacketSize == 0) {
+			//we got all the packets
+			break;
+		}
+
+		LPEncryptDataT encryptDataField = create_EcryptData(
+			hHeap,
+			buff,
+			cbPacketSize,
+			clientThreadArg->sEncryptionKey,
+			dwKeyLen,
+			&criticalSection,
+			&conditionVariable
+		);
+
+		pushSyncQueue(gQueue, encryptDataField);
+		dwIndex++;
+
+		if (dwIndex - 1 >= dwEcryptArraySize) {
+			//resize the array
+			dwEcryptArraySize *= 2;
+			_tprintf(_T("realloc\n"));
+
+			/*
+			 * WARNING: for reasons beyond my comprehension this code crashes for large files
+			 * the debugger said the heap is corrupted. I can't find the source of the problem. nr_hours_wasted_here=2;
+			 * Please increment the counter, if you cannot solve the problem either.
+			 */
+			LPEncryptDataT* aux = (LPEncryptDataT*)HeapReAlloc(
+				hHeap,
+				0,
+				lplpEncryptDataT,
+				dwEcryptArraySize * sizeof(LPEncryptDataT)
+			);
+
+			lplpEncryptDataT = aux;
+		}
+
+		//save encryptDAtafield
+		lplpEncryptDataT[dwIndex] = encryptDataField;
+	}
+
+	_tprintf(_T("last packet got\n"));
+	for(DWORD i = 0; i < dwIndex; i++) {
+		EnterCriticalSection(&criticalSection);
+		LPEncryptDataT lpEncryptData = lplpEncryptDataT[i];
+
+		_tprintf(_T("waiting packet encryption\n"));
+		while (lpEncryptData->dwStatus != DATA_ENCRYPTED) {
+			SleepConditionVariableCS(&conditionVariable, &criticalSection, INFINITE);
+		}
+		LeaveCriticalSection(&criticalSection);
+		_tprintf(_T("packet encrypted\n"));
+
+		bSuccess = sendPacket(clientThreadArg->hPipe, lpEncryptData->toBeEncrypted, lpEncryptData->dwBuffLen);
+		if (!bSuccess) {
+			break;
+		}
+		_tprintf(_T("packet sent\n"));
+		cbTotalEncrypted += lpEncryptData->dwBuffLen;
+
+		//free_EncryptData(hHeap, lpEncryptData);
+	}
+	dwResponse = (bSuccess) ? LAST_PACKET : TERMINATE_CONNECTION;
+
+	WriteFile(
+		clientThreadArg->hPipe,
+		&dwResponse,
+		sizeof(DWORD),
+		&cbWritten,
+		NULL
+	);
+	_tprintf(_T("last encrypted packet sent\n"));
+
+	//HeapFree(hHeap, 0, lplpEncryptDataT);
+
 	//connection terminated
 	CloseHandle(clientThreadArg->hPipe);
 
@@ -285,6 +292,7 @@ DWORD WINAPI serveClient(LPClientThreadT clientThreadArg)
 	EnterCriticalSection(&g_cs);
 	nrCurrentClients--;
 	LeaveCriticalSection(&g_cs);
+
 	return 0;
 }
 
@@ -384,8 +392,8 @@ BOOL authenticateClient(HANDLE hPipe, LPInitT init, LPCredentialManagerT manager
 	auth = checkClientCredentials(manager, credential);
 
 	free(credential);
-
 	free(sPassword);
+
 	dwResponse = (auth) ? AUTH_SUCCESSFUL : AUTH_REJECTED;
 
 	bSuccess = WriteFile(
@@ -575,6 +583,37 @@ VOID initializeServer(INT argc, PTCHAR argv[])
 
 	InitializeCriticalSection(&g_cs);
 	InitializeCriticalSection(&gcsCredentialManger);
+
+	HANDLE hPipeFile = CreateFile(
+		_T("pipe.txt"),
+		GENERIC_WRITE,
+		0,
+		NULL,
+		CREATE_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+
+	if (hPipeFile == INVALID_HANDLE_VALUE) {
+		_tprintf(_T("could not open pipe file for writing\n"));
+		exit(5);
+	}
+
+	DWORD cbWritten;
+	BOOL bSuccess = WriteFile(
+		hPipeFile,
+		sRealPipeName,
+		_tcslen(sRealPipeName) * sizeof(TCHAR),
+		&cbWritten,
+		NULL
+	);
+
+	if (!bSuccess) {
+		_tprintf(_T("Could not write pipename to file\n!"));
+		exit(5);
+	}
+
+	CloseHandle(hPipeFile);
 }
 
 /*
@@ -633,13 +672,15 @@ HANDLE getClientConnection(PTCHAR pipeName)
  * A separate thread is created for each of the authenticated clients, which will read the bytes to be encrypted, submit those bytes to encryption to the worker threads.
  * Once the bytes are ecrypted, they are sent back to client.
  */
-int _tmain(INT argc, PTCHAR argv[])
+INT _tmain(INT argc, PTCHAR argv[])
 {
 	HANDLE hPipe;
 	InitT init;
 	HANDLE hThread;
 	DWORD dwThreadId = 0;
 	PTCHAR clientName;
+
+	_CrtSetDbgFlag(_CRTDBG_CHECK_ALWAYS_DF);
 
 	initializeServer(argc, argv);
 
