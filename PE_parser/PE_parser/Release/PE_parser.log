@@ -1,0 +1,69 @@
+﻿  ErrorCodes.cpp
+d:\git\c_bitdefender\wsp4_examples\include\Environment.h(20): warning C4005: '_UNICODE': macro redefinition
+  d:\git\c_bitdefender\wsp4_examples\include\Environment.h(20): note: command-line arguments:  see previous definition of '_UNICODE'
+  main.cpp
+d:\git\c_bitdefender\wsp4_examples\include\Environment.h(20): warning C4005: '_UNICODE': macro redefinition
+  d:\git\c_bitdefender\wsp4_examples\include\Environment.h(20): note: command-line arguments:  see previous definition of '_UNICODE'
+  ParsingUtilities.cpp
+d:\git\c_bitdefender\wsp4_examples\include\Environment.h(20): warning C4005: '_UNICODE': macro redefinition
+  d:\git\c_bitdefender\wsp4_examples\include\Environment.h(20): note: command-line arguments:  see previous definition of '_UNICODE'
+  PeParser.cpp
+d:\git\c_bitdefender\wsp4_examples\include\Environment.h(20): warning C4005: '_UNICODE': macro redefinition
+  d:\git\c_bitdefender\wsp4_examples\include\Environment.h(20): note: command-line arguments:  see previous definition of '_UNICODE'
+  REPRTERR.C
+d:\git\c_bitdefender\wsp4_examples\include\Environment.h(20): warning C4005: '_UNICODE': macro redefinition
+  d:\git\c_bitdefender\wsp4_examples\include\Environment.h(20): note: command-line arguments:  see previous definition of '_UNICODE'
+REPRTERR.C(12): warning C4273: 'ReportError': inconsistent dll linkage
+  d:\git\c_bitdefender\wsp4_examples\include\support.h(63): note: see previous definition of 'ReportError'
+REPRTERR.C(45): warning C4273: 'ReportException': inconsistent dll linkage
+  d:\git\c_bitdefender\wsp4_examples\include\support.h(64): note: see previous definition of 'ReportException'
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const MACHINE_ARM" (?MACHINE_ARM@@3PB_WB) already defined in main.obj
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const CHARAC_BYTES_REVERSED_LO" (?CHARAC_BYTES_REVERSED_LO@@3PB_WB) already defined in main.obj
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const CHARAC_LOCAL_SYSMS_STRIPPED" (?CHARAC_LOCAL_SYSMS_STRIPPED@@3PB_WB) already defined in main.obj
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const MACHINE_IA64" (?MACHINE_IA64@@3PB_WB) already defined in main.obj
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const CHARAC_EXECUTABLE_IMAGE" (?CHARAC_EXECUTABLE_IMAGE@@3PB_WB) already defined in main.obj
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const MACHINE_ARMNT" (?MACHINE_ARMNT@@3PB_WB) already defined in main.obj
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const MACHINE_I386" (?MACHINE_I386@@3PB_WB) already defined in main.obj
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const CHARAC_RELOCS_STRIPPED" (?CHARAC_RELOCS_STRIPPED@@3PB_WB) already defined in main.obj
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const CHARAC_FILE_SYSTEM" (?CHARAC_FILE_SYSTEM@@3PB_WB) already defined in main.obj
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const MACHINE_AMD64" (?MACHINE_AMD64@@3PB_WB) already defined in main.obj
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const MACHINE_AM33" (?MACHINE_AM33@@3PB_WB) already defined in main.obj
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const MACHINE_M32R" (?MACHINE_M32R@@3PB_WB) already defined in main.obj
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const CHARAC_REMOVABLE_RUN_FROM_SWAP" (?CHARAC_REMOVABLE_RUN_FROM_SWAP@@3PB_WB) already defined in main.obj
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const CHARAC_NET_RUN_FROM_SWAP" (?CHARAC_NET_RUN_FROM_SWAP@@3PB_WB) already defined in main.obj
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const CHARAC_32BIT_MACHINE" (?CHARAC_32BIT_MACHINE@@3PB_WB) already defined in main.obj
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const CHARAC_BYTES_REVERSED_HI" (?CHARAC_BYTES_REVERSED_HI@@3PB_WB) already defined in main.obj
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const MACHINE_UNKOWN" (?MACHINE_UNKOWN@@3PB_WB) already defined in main.obj
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const CHARAC_LINE_NUMS_STRIPPED" (?CHARAC_LINE_NUMS_STRIPPED@@3PB_WB) already defined in main.obj
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const CHARAC_DEBUG_STRIPPED" (?CHARAC_DEBUG_STRIPPED@@3PB_WB) already defined in main.obj
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const CHARAC_LARGE_ADDRESS_AWARE" (?CHARAC_LARGE_ADDRESS_AWARE@@3PB_WB) already defined in main.obj
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const MACHINE_EBC" (?MACHINE_EBC@@3PB_WB) already defined in main.obj
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const CHARAC_AGGRESSIVE_WS_TRIM" (?CHARAC_AGGRESSIVE_WS_TRIM@@3PB_WB) already defined in main.obj
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const CHARAC_FILE_DLL" (?CHARAC_FILE_DLL@@3PB_WB) already defined in main.obj
+ParsingUtilities.obj : error LNK2005: "wchar_t const * const CHARAC_UP_SYSYTEM_ONLY" (?CHARAC_UP_SYSYTEM_ONLY@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const MACHINE_ARM" (?MACHINE_ARM@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const CHARAC_BYTES_REVERSED_LO" (?CHARAC_BYTES_REVERSED_LO@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const CHARAC_LOCAL_SYSMS_STRIPPED" (?CHARAC_LOCAL_SYSMS_STRIPPED@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const MACHINE_IA64" (?MACHINE_IA64@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const CHARAC_EXECUTABLE_IMAGE" (?CHARAC_EXECUTABLE_IMAGE@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const MACHINE_ARMNT" (?MACHINE_ARMNT@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const MACHINE_I386" (?MACHINE_I386@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const CHARAC_RELOCS_STRIPPED" (?CHARAC_RELOCS_STRIPPED@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const CHARAC_FILE_SYSTEM" (?CHARAC_FILE_SYSTEM@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const MACHINE_AMD64" (?MACHINE_AMD64@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const MACHINE_AM33" (?MACHINE_AM33@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const MACHINE_M32R" (?MACHINE_M32R@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const CHARAC_REMOVABLE_RUN_FROM_SWAP" (?CHARAC_REMOVABLE_RUN_FROM_SWAP@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const CHARAC_NET_RUN_FROM_SWAP" (?CHARAC_NET_RUN_FROM_SWAP@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const CHARAC_32BIT_MACHINE" (?CHARAC_32BIT_MACHINE@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const CHARAC_BYTES_REVERSED_HI" (?CHARAC_BYTES_REVERSED_HI@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const MACHINE_UNKOWN" (?MACHINE_UNKOWN@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const CHARAC_LINE_NUMS_STRIPPED" (?CHARAC_LINE_NUMS_STRIPPED@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const CHARAC_DEBUG_STRIPPED" (?CHARAC_DEBUG_STRIPPED@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const CHARAC_LARGE_ADDRESS_AWARE" (?CHARAC_LARGE_ADDRESS_AWARE@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const MACHINE_EBC" (?MACHINE_EBC@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const CHARAC_AGGRESSIVE_WS_TRIM" (?CHARAC_AGGRESSIVE_WS_TRIM@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const CHARAC_FILE_DLL" (?CHARAC_FILE_DLL@@3PB_WB) already defined in main.obj
+PeParser.obj : error LNK2005: "wchar_t const * const CHARAC_UP_SYSYTEM_ONLY" (?CHARAC_UP_SYSYTEM_ONLY@@3PB_WB) already defined in main.obj
+     Creating library D:\git\C_BitDefender\PE_parser\Release\PE_parser.lib and object D:\git\C_BitDefender\PE_parser\Release\PE_parser.exp
+D:\git\C_BitDefender\PE_parser\Release\PE_parser.exe : fatal error LNK1169: one or more multiply defined symbols found

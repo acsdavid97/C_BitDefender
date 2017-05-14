@@ -9,7 +9,6 @@
  * 2017-05-13: File created
  */
 
-#include "Everything.h"
 #include "PeParser.h"
 
 VOID 
@@ -21,9 +20,9 @@ PrintUsage()
 INT 
 _tmain(INT argc, PTCHAR argv[])
 {
-	HANDLE hFile = INVALID_HANDLE_VALUE;
-	HANDLE hFileMapping = INVALID_HANDLE_VALUE;
-	LPVOID lpvFileMappingAddress = NULL;
+	HANDLE hFile;
+	HANDLE hFileMapping;
+	FILE_MAPPING fileMapping;
 
 	if (argc != 2)
 	{
@@ -44,6 +43,7 @@ _tmain(INT argc, PTCHAR argv[])
 	{
 		ReportError(_T("Could not open file."), FILE_OPENING_ERROR, TRUE);
 	}
+	GetFileSizeEx(hFile, (PLARGE_INTEGER)&fileMapping.ullSize);
 	
 	hFileMapping = CreateFileMapping(
 		hFile, //handle to file
@@ -58,20 +58,20 @@ _tmain(INT argc, PTCHAR argv[])
 		ReportError(_T("Could not create file mapping."), MAP_VIEW_ERROR, TRUE);
 	}
 
-	lpvFileMappingAddress = MapViewOfFile(
+	fileMapping.pvMappingAddress = MapViewOfFile(
 		hFileMapping, //file mapping
 		FILE_MAP_READ, // read only access
 		0,
 		0, // map the whole file
 		0
 	);
-	if (lpvFileMappingAddress == NULL)
+	if (fileMapping.pvMappingAddress == NULL)
 	{
 		ReportError(_T("Could not map view of file."), 4, TRUE);
 	}
 
-	ERROR_CODE errorCode = ParseMappedPEFile(lpvFileMappingAddress);
-	printErrorCode(errorCode);
+	ERROR_CODE errorCode = ParseMappedPEFile(&fileMapping);
+	PrintErrorCode(errorCode);
 
 	return SUCCESS;
 }
