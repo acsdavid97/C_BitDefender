@@ -7,7 +7,7 @@
  * 
  * Change log:
  * 2017-05-13: File created
- * 2017-05-14: Export and import table erros added.
+ * 2017-05-14: Export and import table errors added.
  */
 
 #include "ErrorCodes.h"

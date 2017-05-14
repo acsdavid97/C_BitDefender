@@ -30,6 +30,7 @@ _tmain(INT argc, PTCHAR argv[])
 		ReportError(_T("Invalid arguments, see usage above."), INVALID_ARGS, FALSE);
 	}
 
+	//TODO: create loading function
 	hFile = CreateFile(
 		argv[1], //file name
 		GENERIC_READ, //access
@@ -71,6 +72,7 @@ _tmain(INT argc, PTCHAR argv[])
 	}
 
 	ERROR_CODE errorCode = ParseMappedPEFile(&fileMapping);
+	_tprintf(_T("\nRESULT OF OPERATION:\n"));
 	PrintErrorCode(errorCode);
 
 	return SUCCESS;

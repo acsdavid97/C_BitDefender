@@ -1,13 +1,14 @@
 /*
  * Author: Ács Dávid
- * Version : 0.1
+ * Version : 0.2
  * 
- * Description: Funcions for parsing a MZ-PE Windows executable.
+ * Description: Functions for parsing a MZ-PE Windows executable.
  * Date of Creation: 2017-05-13
  * 
  * Change log:
  * 2017-05-13: File created
  * 2017-05-14: ParseMappedPEFile function added and commented.
+ * 2017-05-14: ParsingUtilities.h included
  */
 #ifndef _H_PE_PARSER_
 #define _H_PE_PARSER_

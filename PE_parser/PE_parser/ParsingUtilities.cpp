@@ -9,6 +9,10 @@
  * 2017-05-14: File created
  * 2017-05-14: RvaToVa function implemented and tested
  * 2017-05-14: GetExportDirectoryInVA function added.
+ * 2017-05-14: Safer approach: - always checking memory bounds by CheckAdrressRange
+ *							   - using PFILE_MAPPING structure became inevitable to achive this.
+ * 2017-05-14: Utility functions AddToPointer, CheckAddressRange and GetNtHeaders added
+ * 2017-05-14: Logical restructuring of the functions
  */
 
 #include "ParsingUtilities.h"
@@ -29,6 +33,11 @@ CheckAddressRange(
 	_In_ ULONGLONG ullSize
 )
 {
+	if (pvStart == NULL || pFileMapping == NULL)
+	{
+		return NULL;
+	}
+
 	PVOID pvEndArea = AddToPointer(pvStart, ullSize);
 	PVOID pvEndMapping = AddToPointer(pFileMapping->pvMappingAddress, pFileMapping->ullSize);
 	return pFileMapping->pvMappingAddress <= pvStart && pvEndArea <= pvEndMapping;
@@ -39,21 +48,35 @@ GetNtHeaders(
 	_In_ PFILE_MAPPING pFileMapping
 )
 {
-	//todo implement
+	PIMAGE_DOS_HEADER pDOSHeader = (PIMAGE_DOS_HEADER)pFileMapping->pvMappingAddress;
+	PIMAGE_NT_HEADERS pNtHeaders = (PIMAGE_NT_HEADERS)AddToPointer(pFileMapping->pvMappingAddress, pDOSHeader->e_lfanew);
+	if (!CheckAddressRange(pFileMapping, pNtHeaders, sizeof(IMAGE_NT_HEADERS)))
+	{
+		return NULL;
+	}
+
+	return pNtHeaders;
 }
 
 PVOID
 RvaToVa(
-	_In_ PIMAGE_NT_HEADERS pImageNtHeaders, //pointer to NT_HEADERS
-	_In_ PVOID pvMappingAddress, // where the file is mapped
+	_In_ PFILE_MAPPING pFileMapping, // where the file is mapped
 	_In_ DWORD rva // relative virtual address
 )
 {
 	PIMAGE_SECTION_HEADER pSectionHeader;
 	DWORD dwVirtAddr;
 	DWORD dwSizeOfData;
-	DWORD dwNrSections = pImageNtHeaders->FileHeader.NumberOfSections;
+	DWORD dwNrSections;
+	PIMAGE_NT_HEADERS pImageNtHeaders;
 
+	pImageNtHeaders = GetNtHeaders(pFileMapping);
+	if (pImageNtHeaders == NULL)
+	{
+		return NULL;
+	}
+
+	dwNrSections = pImageNtHeaders->FileHeader.NumberOfSections;
 	if (rva == 0 || dwNrSections == 0)
 	{
 		return NULL;
@@ -62,14 +85,18 @@ RvaToVa(
 	//find the corresponding section
 	for(DWORD i = 0; i < dwNrSections; i++)
 	{
-		pSectionHeader = GetSectionHeader(pImageNtHeaders, i);
+		pSectionHeader = GetSectionHeader(pFileMapping, i);
+		if (pSectionHeader == NULL)
+		{
+			return NULL;
+		}
 		dwVirtAddr = pSectionHeader->VirtualAddress;
 		dwSizeOfData = pSectionHeader->SizeOfRawData;
 
 		if (dwVirtAddr <= rva && rva < dwVirtAddr + dwSizeOfData)
 		{
 			//found the corresponding section
-			return (PVOID)((ULONGLONG) pvMappingAddress + rva - dwVirtAddr + pSectionHeader->PointerToRawData);
+			return AddToPointer(pFileMapping->pvMappingAddress, rva - dwVirtAddr + pSectionHeader->PointerToRawData);
 		}
 	}
 
@@ -148,63 +175,63 @@ PrintCharacString(
 {
 	if (characteristic & IMAGE_FILE_RELOCS_STRIPPED)
 	{
-		_tprintf(_T("IMAGE_FILE_RELOCS_STRIPPED\n"));
+		_tprintf(_T("      IMAGE_FILE_RELOCS_STRIPPED\n"));
 	}
 	if (characteristic & IMAGE_FILE_EXECUTABLE_IMAGE)
 	{
-		_tprintf(_T("IMAGE_FILE_EXECUTABLE_IMAGE\n"));
+		_tprintf(_T("      IMAGE_FILE_EXECUTABLE_IMAGE\n"));
 	}
 	if (characteristic & IMAGE_FILE_LINE_NUMS_STRIPPED)
 	{
-		_tprintf(_T("IMAGE_FILE_LINE_NUMS_STRIPPED\n"));
+		_tprintf(_T("      IMAGE_FILE_LINE_NUMS_STRIPPED\n"));
 	}
 	if (characteristic & IMAGE_FILE_LOCAL_SYMS_STRIPPED)
 	{
-		_tprintf(_T("IMAGE_FILE_LOCAL_SYSMS_STRIPPED\n"));
+		_tprintf(_T("      IMAGE_FILE_LOCAL_SYSMS_STRIPPED\n"));
 	}
 	if (characteristic & IMAGE_FILE_AGGRESIVE_WS_TRIM)
 	{
-		_tprintf(_T("IMAGE_FILE_AGGRESSIVE_WS_TRIM\n"));
+		_tprintf(_T("      IMAGE_FILE_AGGRESSIVE_WS_TRIM\n"));
 	}
 	if (characteristic & IMAGE_FILE_LARGE_ADDRESS_AWARE)
 	{
-		_tprintf(_T("IMAGE_FILE_LARGE_ADDRESS_AWARE\n"));
+		_tprintf(_T("      IMAGE_FILE_LARGE_ADDRESS_AWARE\n"));
 	}
 	if (characteristic & IMAGE_FILE_BYTES_REVERSED_LO)
 	{
-		_tprintf(_T("IMAGE_FILE_BYTES_REVERSED_LO\n"));
+		_tprintf(_T("      IMAGE_FILE_BYTES_REVERSED_LO\n"));
 	}
 	if (characteristic & IMAGE_FILE_32BIT_MACHINE)
 	{
-		_tprintf(_T("IMAGE_FILE_32BIT_MACHINE\n"));
+		_tprintf(_T("      IMAGE_FILE_32BIT_MACHINE\n"));
 	}
 	if (characteristic & IMAGE_FILE_DEBUG_STRIPPED)
 	{
-		_tprintf(_T("IMAGE_FILE_DEBUG_STRIPPED\n"));
+		_tprintf(_T("      IMAGE_FILE_DEBUG_STRIPPED\n"));
 	}
 	if (characteristic & IMAGE_FILE_REMOVABLE_RUN_FROM_SWAP)
 	{
-		_tprintf(_T("IMAGE_FILE_REMOVABLE_RUN_FROM_SWAP\n"));
+		_tprintf(_T("      IMAGE_FILE_REMOVABLE_RUN_FROM_SWAP\n"));
 	}
 	if (characteristic & IMAGE_FILE_NET_RUN_FROM_SWAP)
 	{
-		_tprintf(_T("IMAGE_FILE_NET_RUN_FROM_SWAP\n"));
+		_tprintf(_T("      IMAGE_FILE_NET_RUN_FROM_SWAP\n"));
 	}
 	if (characteristic & IMAGE_FILE_SYSTEM)
 	{
-		_tprintf(_T("IMAGE_FILE_SYSTEM\n"));
+		_tprintf(_T("      IMAGE_FILE_SYSTEM\n"));
 	}
 	if (characteristic & IMAGE_FILE_DLL)
 	{
-		_tprintf(_T("IMAGE_FILE_DLL\n"));
+		_tprintf(_T("      IMAGE_FILE_DLL\n"));
 	}
 	if (characteristic & IMAGE_FILE_UP_SYSTEM_ONLY)
 	{
-		_tprintf(_T("IMAGE_FILE_UP_SYSYTEM_ONLY\n"));
+		_tprintf(_T("      IMAGE_FILE_UP_SYSYTEM_ONLY\n"));
 	}
 	if (characteristic & IMAGE_FILE_BYTES_REVERSED_HI)
 	{
-		_tprintf(_T("IMAGE_FILE_BYTES_REVERSED_HI\n"));
+		_tprintf(_T("      IMAGE_FILE_BYTES_REVERSED_HI\n"));
 	}
 }
 
@@ -214,26 +241,46 @@ GetSectionHeader(
 	_In_ DWORD i // number of section
 )
 {
-	PIMAGE_NT_HEADERS pImageNtHeaders = 
+	ULONGLONG ullToAdd;
+	PIMAGE_NT_HEADERS pImageNtHeaders;
+	PIMAGE_SECTION_HEADER pSectionHeader;
+
+	pImageNtHeaders = GetNtHeaders(pFileMapping);
+	if (pImageNtHeaders == NULL)
+	{
+		return NULL;
+	}
+
 	if (i >= pImageNtHeaders->FileHeader.NumberOfSections)
 	{
 		return NULL;
 	}
 
-	if (!CheckAddressRange())
-	ULONGLONG ullToAdd = sizeof(IMAGE_NT_HEADERS) + i * sizeof(IMAGE_SECTION_HEADER);
-	PVOID pvAddress = AddToPointer(pImageNtHeaders, uLL)
-	return (PIMAGE_SECTION_HEADER)((ULONGLONG)pImageNtHeaders
+
+	ullToAdd = sizeof(IMAGE_FILE_HEADER) + sizeof(DWORD) + pImageNtHeaders->FileHeader.SizeOfOptionalHeader + i * sizeof(IMAGE_SECTION_HEADER);
+	pSectionHeader = (PIMAGE_SECTION_HEADER)AddToPointer(pImageNtHeaders, ullToAdd);
+	if (!CheckAddressRange(pFileMapping, pSectionHeader, sizeof(IMAGE_SECTION_HEADER)))
+	{
+		return NULL;
+	}
+	
+	return pSectionHeader;
 }
 
 ERROR_CODE
 GetExportDirectoryInVA(
-	_In_ PIMAGE_NT_HEADERS pNtHeaders, //NT headers mapped in memory
-	_In_ PVOID pvMappingAddress, //mapping address
+	_In_ PFILE_MAPPING pFileMapping, //mapping address
 	_Out_ PEXPORT_DIR_VA pExportDirVa // where the translated data will be stored after successful operation
 )
 {
 	PIMAGE_DATA_DIRECTORY pExportDataDirectory;
+	PIMAGE_NT_HEADERS pNtHeaders;
+
+	pNtHeaders = GetNtHeaders(pFileMapping);
+	if (pNtHeaders == NULL)
+	{
+		return INVALID_RVA_CODE;
+	}
 
 	if (pNtHeaders->OptionalHeader.NumberOfRvaAndSizes <= IMAGE_DIRECTORY_ENTRY_EXPORT)
 	{
@@ -243,51 +290,46 @@ GetExportDirectoryInVA(
 	pExportDataDirectory = &pNtHeaders->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
 
 	pExportDirVa->pExportDirectory = (PIMAGE_EXPORT_DIRECTORY)RvaToVa(
-		pNtHeaders,
-		pvMappingAddress,
+		pFileMapping,
 		pExportDataDirectory->VirtualAddress
 	);
-	if (pExportDirVa->pExportDirectory == NULL)
+	if (!CheckAddressRange(pFileMapping, pExportDirVa->pExportDirectory, sizeof(IMAGE_EXPORT_DIRECTORY)))
 	{
-		return INVALID_TABLE_RVA;
+		return INVALID_RVA_CODE;
 	}
 
 	pExportDirVa->pcName = (PCHAR)RvaToVa(
-		pNtHeaders,
-		pvMappingAddress,
+		pFileMapping,
 		pExportDirVa->pExportDirectory->Name
 	);
-	if (pExportDirVa->pcName == NULL)
+	if (!CheckAddressRange(pFileMapping, pExportDirVa->pcName, 8))
 	{
 		return INVALID_RVA_CODE;
 	}
 
 	pExportDirVa->pNameRVAs = (PDWORD)RvaToVa(
-		pNtHeaders,
-		pvMappingAddress,
+		pFileMapping,
 		pExportDirVa->pExportDirectory->AddressOfNames
 	);
-	if (pExportDirVa->pNameRVAs == NULL)
+	if (!CheckAddressRange(pFileMapping, pExportDirVa->pNameRVAs, sizeof(DWORD) * pExportDirVa->pExportDirectory->NumberOfNames))
 	{
 		return INVALID_RVA_CODE;
 	}
 
 	pExportDirVa->pAddresses = (PDWORD)RvaToVa(
-		pNtHeaders,
-		pvMappingAddress,
+		pFileMapping,
 		pExportDirVa->pExportDirectory->AddressOfFunctions
 	);
-	if (pExportDirVa->pAddresses == NULL)
+	if (!CheckAddressRange(pFileMapping, pExportDirVa->pAddresses, sizeof(DWORD) * pExportDirVa->pExportDirectory->NumberOfFunctions))
 	{
 		return INVALID_RVA_CODE;
 	}
 
 	pExportDirVa->pOrdinals = (PWORD)RvaToVa(
-		pNtHeaders,
-		pvMappingAddress,
+		pFileMapping,
 		pExportDirVa->pExportDirectory->AddressOfNameOrdinals
 	);
-	if (pExportDirVa->pOrdinals == NULL)
+	if (!CheckAddressRange(pFileMapping, pExportDirVa->pOrdinals, sizeof(WORD) * pExportDirVa->pExportDirectory->NumberOfNames))
 	{
 		return INVALID_RVA_CODE;
 	}

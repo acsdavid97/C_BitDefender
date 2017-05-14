@@ -8,6 +8,9 @@
  * Change log:
  * 2017-05-14: File created
  * 2017-05-14: GetExportDirectoryInVA function added.
+ * 2017-05-14: FILE_MAPPING structure added
+ * 2017-05-14: Utility functions AddToPointer, CheckAddressRange and GetNtHeaders added
+ * 2017-05-14: Logical restructuring of the functions
  */
 
 #ifndef _H_PARSING_UTILITIES_
@@ -64,8 +67,7 @@ GetNtHeaders(
  */
 PVOID
 RvaToVa(
-	_In_ PIMAGE_NT_HEADERS pImageNtHeaders, //pointer to NT_HEADERS
-	_In_ PVOID pvMappingAddress, // where the file is mapped
+	_In_ PFILE_MAPPING pFileMapping, // where the file is mapped
 	_In_ DWORD rva // relative virtual address
 );
 
@@ -113,8 +115,7 @@ GetSectionHeader(
  */
 ERROR_CODE
 GetExportDirectoryInVA(
-	_In_ PIMAGE_NT_HEADERS pNtHeaders, //NT headers mapped in memory
-	_In_ PVOID pvMappingAddress, //mapping address
+	_In_ PFILE_MAPPING pFileMapping, //mapping address
 	_Out_ PEXPORT_DIR_VA pExportDirVa // where the translated data will be stored after successful operation
 );
 
