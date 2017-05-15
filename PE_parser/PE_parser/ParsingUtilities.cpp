@@ -1,6 +1,6 @@
 /*	
  * Author: Ács Dávid
- * Version : 0.2
+ * Version : 0.3
  * 
  * Description: Utility function implementations for parsing a MZ-PE Windows executable.
  * Date of Creation: 2017-05-14

@@ -1,6 +1,6 @@
 /*	
  * Author: Ács Dávid
- * Version : 0.2
+ * Version : 0.3
  * 
  * Description: Function implementations for parsing a MZ-PE Windows executable.
  * Date of Creation: 2017-05-13
@@ -9,18 +9,14 @@
  * 2017-05-13: File created
  * 2017-05-14: Variables renamed, to correctly reflect hungarian notation.
  * 2017-05-14: Safer approach: - always checking memory bounds by CheckAdrressRange
- *							   - using PFILE_MAPPING structure became inevitable to achive this.
+ *							   - using PFILE_MAPPING structure became inevitable to achieve this.
  * 2017-05-14: Output more readable
+ * 2017-05-15: Import parsing corrected and split into smaller functions.
+ * 2017-05-15: 64 bit executable support added, but program needs recompilation with _WIN64 defined! yay
  */
 
 #include "PeParser.h"
 
-/*
- * Parses the IMAGE_FILE_HEADER of the memory mapped executable.
- * Prints the machine code, number of sections and characterisitics both in hexa and
- * human readable form.
- * Returns an ERROR_CODE
- */
 ERROR_CODE
 ParseImageFileHeader(
 	_In_ PIMAGE_FILE_HEADER pImageFileHeader //pointer to the header to be parsed.
@@ -42,10 +38,6 @@ ParseImageFileHeader(
 	return SUCCESS;
 }
 
-/*
- * Parses the IMAGE_OPTIONAL_HEADER of the memory mapped executable.
- * Returns an ERROR_CODE
- */
 ERROR_CODE
 ParseImageOptionalHeader(
 	_In_ PIMAGE_OPTIONAL_HEADER pImageOptionalHeader // pointer to header to be parsed.
@@ -53,7 +45,7 @@ ParseImageOptionalHeader(
 {
 	LPCTSTR pszSubsystem;
 
-	if (pImageOptionalHeader->Magic != 0x10b && pImageOptionalHeader->Magic != 0x107 && pImageOptionalHeader->Magic != 0x20b)
+	if (pImageOptionalHeader->Magic != IMAGE_NT_OPTIONAL_HDR_MAGIC )
 	{
 		return INVALID_PE_FILE;
 	}
@@ -65,7 +57,11 @@ ParseImageOptionalHeader(
 	}
 
 	_tprintf(_T("      Address of entry point: %#010x\n"), pImageOptionalHeader->AddressOfEntryPoint);
+#ifdef _WIN64
+	_tprintf(_T("      Image base: %#018llx\n"), pImageOptionalHeader->ImageBase);
+#else
 	_tprintf(_T("      Image base: %#010x\n"), pImageOptionalHeader->ImageBase);
+#endif
 	_tprintf(_T("      Subsystem: %s\n"), pszSubsystem);
 	_tprintf(_T("      Section alignment: %#010x\n"), pImageOptionalHeader->SectionAlignment);
 	_tprintf(_T("      File alignment: %#010x\n"), pImageOptionalHeader->FileAlignment);
@@ -131,7 +127,6 @@ ParseExportedFunctions(
 		pFileMapping,
 		&exportDirVa
 	);
-
 	if (errorCode != SUCCESS)
 	{
 		return errorCode;
@@ -144,7 +139,7 @@ ParseExportedFunctions(
 	{
 		wOrdinal = exportDirVa.pOrdinals[i];
 		_tprintf(_T("\n      i: %d\n"), i);
-		_tprintf(_T("      Ordinal: %u\n"), wOrdinal);
+		_tprintf(_T("      Ordinal: %u (in hexa %#010x)\n"), wOrdinal, wOrdinal);
 
 		pszFunctionName = (PCHAR)RvaToVa(
 			pFileMapping,
@@ -164,7 +159,9 @@ ParseThunkData(
 	PIMAGE_THUNK_DATA pThunkData
 )
 {
-	//todo declare variable and use them later
+	DWORD dwOrdinal;
+	PIMAGE_IMPORT_BY_NAME pImportByName;
+
 	if (!CheckAddressRange(pFileMapping, pThunkData, sizeof(IMAGE_THUNK_DATA)))
 	{
 		return INVALID_RVA_CODE;
@@ -174,12 +171,12 @@ ParseThunkData(
 	{
 		if (pThunkData->u1.AddressOfData >> 31)
 		{
-			DWORD dwOrdinal = pThunkData->u1.Ordinal & 0x0000FFFF;
-			printf("   ordinal: %d (in hexa %#10x)\n", dwOrdinal, dwOrdinal);
+			dwOrdinal = pThunkData->u1.Ordinal & 0x0000FFFF;
+			printf("      ordinal: %u (in hexa %#010x)\n", dwOrdinal, dwOrdinal);
 		}
 		else
 		{
-			PIMAGE_IMPORT_BY_NAME pImportByName = (PIMAGE_IMPORT_BY_NAME)RvaToVa(
+			pImportByName = (PIMAGE_IMPORT_BY_NAME)RvaToVa(
 				pFileMapping,
 				pThunkData->u1.AddressOfData
 			);
@@ -201,57 +198,190 @@ ParseThunkData(
 
 }
 
-ERROR_CODE
-ParseImports(
-	_In_ PFILE_MAPPING pFileMapping
+ERROR_CODE 
+ParseOriginalFirstThunkImports(
+	_In_ PFILE_MAPPING pFileMapping,
+	_In_ PIMAGE_IMPORT_DESCRIPTOR pImportDescriptor
 )
 {
 	DWORD i;
-	ERROR_CODE errorCode;
-
-	//todo declare variable and use them later
-	PIMAGE_NT_HEADERS pImageNtHeaders = GetNtHeaders(pFileMapping);
-	if (pImageNtHeaders == NULL)
-	{
-		return INVALID_PE_FILE;
-	}
-
-	PIMAGE_DATA_DIRECTORY pImportDir = &pImageNtHeaders->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
-	PIMAGE_IMPORT_DESCRIPTOR pImportDescriptor = (PIMAGE_IMPORT_DESCRIPTOR)RvaToVa(
-		pFileMapping,
-		pImportDir->VirtualAddress
-	);
+	PCHAR pszImportName;
+	PIMAGE_THUNK_DATA pThunkData;
 
 	if (!CheckAddressRange(pFileMapping, pImportDescriptor, sizeof(IMAGE_IMPORT_DESCRIPTOR)))
 	{
 		return INVALID_RVA_CODE;
 	}
 
-	//todo: do we need OriginalFirstThunk or FirstThunk too?
-	// yes we do
-	for (i = 0; pImportDescriptor->FirstThunk; i++)
+	for (i = 0; pImportDescriptor->OriginalFirstThunk != 0; i++)
 	{
-		PCHAR pszName = (PCHAR)RvaToVa(
+		if (pImportDescriptor->OriginalFirstThunk == pImportDescriptor->FirstThunk)
+		{
+			//this address has been already dealt with in the FirstThunk version of this function.
+			pImportDescriptor++;
+			continue;
+		}
+		pszImportName = (PCHAR)RvaToVa(
 			pFileMapping,
 			pImportDescriptor->Name
 		);
-		if (!CheckAddressRange(pFileMapping, pszName, 1))
+		if (!CheckAddressRange(pFileMapping, pszImportName, 1))
 		{
 			return INVALID_RVA_CODE;
 		}
-		printf("  name of import nr %u: %s\n", i, pszName);
+		printf("  name of import nr %u: %s\n", i, pszImportName);
 
-		PIMAGE_THUNK_DATA pThunkData = (PIMAGE_THUNK_DATA)RvaToVa(
+		 pThunkData = (PIMAGE_THUNK_DATA)RvaToVa(
+			pFileMapping,
+			pImportDescriptor->OriginalFirstThunk
+		);
+		if (!CheckAddressRange(pFileMapping, pThunkData, sizeof(IMAGE_THUNK_DATA)))
+		{
+			return INVALID_RVA_CODE;
+		}
+
+		ParseThunkData(pFileMapping, pThunkData);
+		pImportDescriptor++;
+	}
+	
+	return SUCCESS;
+}
+
+ERROR_CODE 
+ParseFirstThunkImports(
+	_In_ PFILE_MAPPING pFileMapping,
+	_In_ PIMAGE_IMPORT_DESCRIPTOR pImportDescriptor
+)
+{
+	DWORD i;
+	PCHAR pszImportName;
+	PIMAGE_THUNK_DATA pThunkData;
+
+	if (!CheckAddressRange(pFileMapping, pImportDescriptor, sizeof(IMAGE_IMPORT_DESCRIPTOR)))
+	{
+		return INVALID_RVA_CODE;
+	}
+
+	for (i = 0; pImportDescriptor->FirstThunk != 0; i++)
+	{
+		pszImportName = (PCHAR)RvaToVa(
+			pFileMapping,
+			pImportDescriptor->Name
+		);
+		if (!CheckAddressRange(pFileMapping, pszImportName, 1))
+		{
+			return INVALID_RVA_CODE;
+		}
+		printf("  name of import nr %u: %s\n", i, pszImportName);
+
+		pThunkData = (PIMAGE_THUNK_DATA)RvaToVa(
 			pFileMapping,
 			pImportDescriptor->FirstThunk
 		);
-		if (CheckAddressRange(pFileMapping, pThunkData, sizeof(IMAGE_THUNK_DATA)))
+		if (!CheckAddressRange(pFileMapping, pThunkData, sizeof(IMAGE_THUNK_DATA)))
 		{
-			ParseThunkData(pFileMapping, pThunkData);
+			return INVALID_RVA_CODE;
 		}
 
-
+		ParseThunkData(pFileMapping, pThunkData);
 		pImportDescriptor++;
+	}
+	
+	return SUCCESS;
+}
+
+ERROR_CODE
+ParseImports(
+	_In_ PFILE_MAPPING pFileMapping
+)
+{
+	ERROR_CODE errorCode;
+	PIMAGE_NT_HEADERS pImageNtHeaders;
+	PIMAGE_DATA_DIRECTORY pImportDir;
+	PIMAGE_IMPORT_DESCRIPTOR pImportDescriptor;
+
+	pImageNtHeaders = GetNtHeaders(pFileMapping);
+	if (pImageNtHeaders == NULL)
+	{
+		return INVALID_PE_FILE;
+	}
+
+	pImportDir = &pImageNtHeaders->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
+	pImportDescriptor = (PIMAGE_IMPORT_DESCRIPTOR)RvaToVa(
+		pFileMapping,
+		pImportDir->VirtualAddress
+	);
+
+	errorCode = ParseFirstThunkImports(
+		pFileMapping,
+		pImportDescriptor
+	);
+	if (errorCode != SUCCESS)
+	{
+		return errorCode;
+	}
+
+	errorCode = ParseOriginalFirstThunkImports(
+		pFileMapping,
+		pImportDescriptor
+	);
+	if (errorCode != SUCCESS)
+	{
+		return errorCode;
+	}
+
+	return SUCCESS;
+}
+
+
+ERROR_CODE
+MapPEFileInMemory(
+	_In_ LPCTSTR pszFilePath, // file path, where the executable is stored
+	_Out_ PFILE_MAPPING pFileMapping // where the file mapping will be stored, if operation successful.
+)
+{
+	HANDLE hFile;
+	HANDLE hFileMapping;
+
+	hFile = CreateFile(
+		pszFilePath, //file name
+		GENERIC_READ, //access
+		0, // no sharing
+		NULL, //default security attr
+		OPEN_EXISTING, //exititing file
+		FILE_ATTRIBUTE_NORMAL, //normal file
+		NULL // no template file
+	);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		return FILE_OPENING_ERROR;
+	}
+
+	GetFileSizeEx(hFile, (PLARGE_INTEGER)&pFileMapping->ullSize);
+	
+	hFileMapping = CreateFileMapping(
+		hFile, //handle to file
+		NULL, //default security attr
+		PAGE_READONLY,
+		0,
+		0, // map the whole file
+		NULL //anonymous mapping
+	);
+	if (hFileMapping == INVALID_HANDLE_VALUE)
+	{
+		return FILE_MAPPING_ERROR;
+	}
+
+	pFileMapping->pvMappingAddress = MapViewOfFile(
+		hFileMapping, //file mapping
+		FILE_MAP_READ, // read only access
+		0,
+		0, // map the whole file
+		0
+	);
+	if (pFileMapping->pvMappingAddress == NULL)
+	{
+		return MAP_VIEW_ERROR;
 	}
 
 	return SUCCESS;
@@ -266,10 +396,9 @@ ParseMappedPEFile(
 	PIMAGE_NT_HEADERS pNTHeaders;
 	PIMAGE_FILE_HEADER pImageFileHeader;
 	PIMAGE_OPTIONAL_HEADER pImageOptionalHeader;
-	PVOID pvMappedAddr = pFileMapping->pvMappingAddress;
 	ERROR_CODE errorCode;
 
-	pDOSHeader = (PIMAGE_DOS_HEADER)pvMappedAddr;
+	pDOSHeader = (PIMAGE_DOS_HEADER)pFileMapping->pvMappingAddress;
 	if (pDOSHeader->e_magic != IMAGE_DOS_SIGNATURE)
 	{
 		return INVALID_PE_FILE;
@@ -314,20 +443,13 @@ ParseMappedPEFile(
 	errorCode = ParseExportedFunctions(
 		pFileMapping
 	);
-
 	if (errorCode != SUCCESS)
 	{
 		PrintErrorCode(errorCode);
 	}
 
-	if (errorCode == EXPORT_TABLE_MISSING)
-	{
-		return EXPORT_TABLE_MISSING;
-	}
-
 	_tprintf(_T("\nImported functions by module:\n"));
 	errorCode = ParseImports(pFileMapping);
-
 	if (errorCode != SUCCESS)
 	{
 		PrintErrorCode(errorCode);

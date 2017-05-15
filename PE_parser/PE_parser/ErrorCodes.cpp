@@ -1,6 +1,6 @@
 /*
  * Author: Ács Dávid
- * Version : 0.2
+ * Version : 0.3
  * 
  * Description: Error codes translated into strings and printed to stdout.
  * Date of Creation: 2017-05-13
@@ -35,7 +35,7 @@ PrintErrorCode(
 			ReportError(_T("Could not map view of file"), 0, FALSE);
 			break;
 		case INVALID_PE_FILE:
-			ReportError(_T("File is not a valid PE file."), 0, FALSE);
+			ReportError(_T("File is not a valid PE file. (Please note that only "ARCH_BIT_STRING"bit is supported)"), 0, FALSE);
 			break;
 		case INVALID_MACHINE_CODE:
 			ReportError(_T("Machine code is not a valid one"), 0, FALSE);

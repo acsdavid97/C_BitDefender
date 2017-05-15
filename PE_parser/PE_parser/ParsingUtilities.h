@@ -1,8 +1,9 @@
 /*	
  * Author: Ács Dávid
- * Version : 0.2
+ * Version : 0.3
  * 
  * Description: Utility functions and constants for parsing a MZ-PE Windows executable.
+ * The utility functions include: converting codes to strings, working with addresses.
  * Date of Creation: 2017-05-14
  * 
  * Change log:

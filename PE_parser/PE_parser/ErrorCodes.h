@@ -1,6 +1,6 @@
 /*
  * Author: Ács Dávid
- * Version : 0.2
+ * Version : 0.3
  * 
  * Description: Error codes (self explanatory).
  * Date of Creation: 2017-05-13
@@ -8,10 +8,17 @@
  * Change log:
  * 2017-05-13: File created
  * 2017-05-14: Export and import table erros added.
+ * 2017-05-14: Support for 64 and 32 bit error codes added.
  */
 
 #ifndef _H_ERROR_CODES_
 #define _H_ERROR_CODES_
+
+#ifdef _WIN64
+#define ARCH_BIT_STRING "64"
+#else 
+#define ARCH_BIT_STRING "32"
+#endif
 
 #include "Everything.h"
 

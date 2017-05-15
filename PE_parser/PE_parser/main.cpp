@@ -1,6 +1,6 @@
 /*
  * Author: Ács Dávid
- * Version : 0.1
+ * Version : 0.3
  * 
  * Description: Program parsing a MZ-PE Windows executable.
  * Date of Creation: 2017-05-13
@@ -20,59 +20,27 @@ PrintUsage()
 INT 
 _tmain(INT argc, PTCHAR argv[])
 {
-	HANDLE hFile;
-	HANDLE hFileMapping;
 	FILE_MAPPING fileMapping;
-
+	ERROR_CODE errorCode;
 	if (argc != 2)
 	{
 		PrintUsage();
 		ReportError(_T("Invalid arguments, see usage above."), INVALID_ARGS, FALSE);
 	}
 
-	//TODO: create loading function
-	hFile = CreateFile(
-		argv[1], //file name
-		GENERIC_READ, //access
-		0, // no sharing
-		NULL, //default security attr
-		OPEN_EXISTING, //exititing file
-		FILE_ATTRIBUTE_NORMAL, //normal file
-		NULL // no template file
-	);
-	if (hFile == INVALID_HANDLE_VALUE)
-	{
-		ReportError(_T("Could not open file."), FILE_OPENING_ERROR, TRUE);
-	}
-	GetFileSizeEx(hFile, (PLARGE_INTEGER)&fileMapping.ullSize);
 	
-	hFileMapping = CreateFileMapping(
-		hFile, //handle to file
-		NULL, //default security attr
-		PAGE_READONLY,
-		0,
-		0, // map the whole file
-		NULL //anonymous mapping
-	);
-	if (hFileMapping == INVALID_HANDLE_VALUE)
+
+	errorCode = MapPEFileInMemory(argv[1], &fileMapping);
+	_tprintf(_T("RESULT OF LOADING:\n"));
+	PrintErrorCode(errorCode);
+	if (errorCode != SUCCESS)
 	{
-		ReportError(_T("Could not create file mapping."), MAP_VIEW_ERROR, TRUE);
+		return errorCode;
 	}
 
-	fileMapping.pvMappingAddress = MapViewOfFile(
-		hFileMapping, //file mapping
-		FILE_MAP_READ, // read only access
-		0,
-		0, // map the whole file
-		0
-	);
-	if (fileMapping.pvMappingAddress == NULL)
-	{
-		ReportError(_T("Could not map view of file."), 4, TRUE);
-	}
 
-	ERROR_CODE errorCode = ParseMappedPEFile(&fileMapping);
-	_tprintf(_T("\nRESULT OF OPERATION:\n"));
+	errorCode = ParseMappedPEFile(&fileMapping);
+	_tprintf(_T("\nRESULT OF PARSING:\n"));
 	PrintErrorCode(errorCode);
 
 	return SUCCESS;
