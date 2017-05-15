@@ -58,7 +58,7 @@ CheckAddressRange(
  */
 PIMAGE_NT_HEADERS
 GetNtHeaders(
-	_In_ PFILE_MAPPING pFileMapping
+	_In_ PFILE_MAPPING pFileMapping //where the file is mapped
 );
 
 /*
@@ -109,8 +109,6 @@ GetSectionHeader(
 	_In_ DWORD i // number of section
 );
 
-
-
 /*
  * Gets and translates the Export directory entry to VA
  */
@@ -119,7 +117,6 @@ GetExportDirectoryInVA(
 	_In_ PFILE_MAPPING pFileMapping, //mapping address
 	_Out_ PEXPORT_DIR_VA pExportDirVa // where the translated data will be stored after successful operation
 );
-
 
 #endif// _H_PARSING_UTILITIES_
 

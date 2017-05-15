@@ -13,6 +13,7 @@
  * 2017-05-14: Output more readable
  * 2017-05-15: Import parsing corrected and split into smaller functions.
  * 2017-05-15: 64 bit executable support added, but program needs recompilation with _WIN64 defined! yay
+ * 2017-05-15: MapPEFileInMemory function implementation
  */
 
 #include "PeParser.h"
@@ -135,6 +136,7 @@ ParseExportedFunctions(
 	printf("  name of exports: %s\n", exportDirVa.pcName);
 	_tprintf(_T("  base of ordinals: %d\n"), exportDirVa.pExportDirectory->Base);
 
+	// for each fucntion with ordinal
 	for(i = 0; i < exportDirVa.pExportDirectory->NumberOfNames; i++)
 	{
 		wOrdinal = exportDirVa.pOrdinals[i];
@@ -167,15 +169,18 @@ ParseThunkData(
 		return INVALID_RVA_CODE;
 	}
 
+	//while there exist entries
 	while (pThunkData->u1.AddressOfData != 0)
 	{
 		if (pThunkData->u1.AddressOfData >> 31)
 		{
+			// import by ordinal
 			dwOrdinal = pThunkData->u1.Ordinal & 0x0000FFFF;
 			printf("      ordinal: %u (in hexa %#010x)\n", dwOrdinal, dwOrdinal);
 		}
 		else
 		{
+			// import by name
 			pImportByName = (PIMAGE_IMPORT_BY_NAME)RvaToVa(
 				pFileMapping,
 				pThunkData->u1.AddressOfData
@@ -306,12 +311,14 @@ ParseImports(
 		return INVALID_PE_FILE;
 	}
 
+	//get pointer to IMPORT_DESCRIPTOR
 	pImportDir = &pImageNtHeaders->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
 	pImportDescriptor = (PIMAGE_IMPORT_DESCRIPTOR)RvaToVa(
 		pFileMapping,
 		pImportDir->VirtualAddress
 	);
 
+	//parse imports
 	errorCode = ParseFirstThunkImports(
 		pFileMapping,
 		pImportDescriptor

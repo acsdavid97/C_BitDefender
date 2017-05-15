@@ -9,6 +9,7 @@
  * 2017-05-13: File created
  * 2017-05-14: ParseMappedPEFile function added and commented.
  * 2017-05-14: ParsingUtilities.h included
+ * 2017-05-15: MapPEFileInMemory function declaration added
  */
 #ifndef _H_PE_PARSER_
 #define _H_PE_PARSER_

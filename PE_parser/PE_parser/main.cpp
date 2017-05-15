@@ -3,10 +3,17 @@
  * Version : 0.3
  * 
  * Description: Program parsing a MZ-PE Windows executable.
+ * The program is capable of parsing both 32 and 64 bit executables if compiled correctly.
+ * In order to parse 64 bit executables, the program needs to be compiled with _WIN64. 
+ * In this case the program is not capable of parsing 32 bit executables.
+ * If the program is compiled without _WIN64, then only 32 bit executables can be parsed.
+ * 
  * Date of Creation: 2017-05-13
  * 
  * Change log:
  * 2017-05-13: File created
+ * 2017-05-15: MapPEFileInMemory function usage.
+ * 
  */
 
 #include "PeParser.h"
