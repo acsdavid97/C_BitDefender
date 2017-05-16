@@ -35,8 +35,6 @@ _tmain(INT argc, PTCHAR argv[])
 		ReportError(_T("Invalid arguments, see usage above."), INVALID_ARGS, FALSE);
 	}
 
-	
-
 	errorCode = MapPEFileInMemory(argv[1], &fileMapping);
 	_tprintf(_T("RESULT OF LOADING:\n"));
 	PrintErrorCode(errorCode);
@@ -45,10 +43,15 @@ _tmain(INT argc, PTCHAR argv[])
 		return errorCode;
 	}
 
-
 	errorCode = ParseMappedPEFile(&fileMapping);
 	_tprintf(_T("\nRESULT OF PARSING:\n"));
 	PrintErrorCode(errorCode);
+
+	errorCode = UnMapPEFileInMemory(&fileMapping);
+	if (errorCode != SUCCESS)
+	{
+		PrintErrorCode(errorCode);
+	}
 
 	return SUCCESS;
 }

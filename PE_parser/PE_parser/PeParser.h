@@ -83,10 +83,21 @@ ParseImports(
 	_In_ PFILE_MAPPING pFileMapping
 );
 
+/*
+ * Maps a file in memory, with the path specified.
+ */
 ERROR_CODE
 MapPEFileInMemory(
 	_In_ LPCTSTR pszFilePath, // file path, where the executable is stored
 	_Out_ PFILE_MAPPING pFileMapping // where the file mapping will be stored, if operation successful.
+);
+
+/*
+ * Unmaps a file from memory.
+ */
+ERROR_CODE
+UnMapPEFileInMemory(
+	_In_ PFILE_MAPPING pFileMapping // file mapping to be unmapped
 );
 
 /*

@@ -279,7 +279,7 @@ GetExportDirectoryInVA(
 	pNtHeaders = GetNtHeaders(pFileMapping);
 	if (pNtHeaders == NULL)
 	{
-		return INVALID_RVA_CODE;
+		return INVALID_PE_FILE;
 	}
 
 	if (pNtHeaders->OptionalHeader.NumberOfRvaAndSizes <= IMAGE_DIRECTORY_ENTRY_EXPORT)

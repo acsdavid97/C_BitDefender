@@ -96,7 +96,7 @@ GetSubsystemString(
  */
 VOID
 PrintCharacString(
-	_In_ WORD characteristic //characterisitc to be printed in human reabable format.
+	_In_ WORD characteristic //characteristic to be printed in human reabable format.
 );
 
 /*
@@ -110,7 +110,9 @@ GetSectionHeader(
 );
 
 /*
- * Gets and translates the Export directory entry to VA
+ * Gets and translates the Export directory entry to VA. 
+ * Each field of the EXPORT_DIR_VA will be translated in VA, including:
+ * Ordinal array, function address array and fucntion name array.
  */
 ERROR_CODE
 GetExportDirectoryInVA(

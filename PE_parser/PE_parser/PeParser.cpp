@@ -347,50 +347,78 @@ MapPEFileInMemory(
 	_Out_ PFILE_MAPPING pFileMapping // where the file mapping will be stored, if operation successful.
 )
 {
-	HANDLE hFile;
-	HANDLE hFileMapping;
+	HANDLE hFile = INVALID_HANDLE_VALUE;
+	HANDLE hFileMapping = INVALID_HANDLE_VALUE;
+	ERROR_CODE errorCode = SUCCESS;
 
-	hFile = CreateFile(
-		pszFilePath, //file name
-		GENERIC_READ, //access
-		0, // no sharing
-		NULL, //default security attr
-		OPEN_EXISTING, //exititing file
-		FILE_ATTRIBUTE_NORMAL, //normal file
-		NULL // no template file
-	);
-	if (hFile == INVALID_HANDLE_VALUE)
+	__try
 	{
-		return FILE_OPENING_ERROR;
+		hFile = CreateFile(
+			pszFilePath, //file name
+			GENERIC_READ, //access
+			0, // no sharing
+			NULL, //default security attr
+			OPEN_EXISTING, //exititing file
+			FILE_ATTRIBUTE_NORMAL, //normal file
+			NULL // no template file
+		);
+		if (hFile == INVALID_HANDLE_VALUE)
+		{
+			errorCode = FILE_OPENING_ERROR;
+			__leave;
+		}
+
+		GetFileSizeEx(hFile, (PLARGE_INTEGER)&pFileMapping->ullSize);
+		
+		hFileMapping = CreateFileMapping(
+			hFile, //handle to file
+			NULL, //default security attr
+			PAGE_READONLY,
+			0,
+			0, // map the whole file
+			NULL //anonymous mapping
+		);
+		if (hFileMapping == INVALID_HANDLE_VALUE)
+		{
+			errorCode = FILE_MAPPING_ERROR;
+			__leave;
+		}
+
+		pFileMapping->pvMappingAddress = MapViewOfFile(
+			hFileMapping, //file mapping
+			FILE_MAP_READ, // read only access
+			0,
+			0, // map the whole file
+			0
+		);
+		if (pFileMapping->pvMappingAddress == NULL)
+		{
+			errorCode = MAP_VIEW_ERROR;
+			__leave;
+		}
+	}
+	__finally
+	{
+		CloseHandle(hFile);
+		CloseHandle(hFileMapping);
 	}
 
-	GetFileSizeEx(hFile, (PLARGE_INTEGER)&pFileMapping->ullSize);
-	
-	hFileMapping = CreateFileMapping(
-		hFile, //handle to file
-		NULL, //default security attr
-		PAGE_READONLY,
-		0,
-		0, // map the whole file
-		NULL //anonymous mapping
-	);
-	if (hFileMapping == INVALID_HANDLE_VALUE)
-	{
-		return FILE_MAPPING_ERROR;
-	}
+	return errorCode;
+}
 
-	pFileMapping->pvMappingAddress = MapViewOfFile(
-		hFileMapping, //file mapping
-		FILE_MAP_READ, // read only access
-		0,
-		0, // map the whole file
-		0
-	);
+ERROR_CODE
+UnMapPEFileInMemory(
+	_In_ PFILE_MAPPING pFileMapping // file mapping to be unmapped
+)
+{
 	if (pFileMapping->pvMappingAddress == NULL)
 	{
-		return MAP_VIEW_ERROR;
+		return INVALID_ARGS;
 	}
-
+	if(!UnmapViewOfFile(pFileMapping->pvMappingAddress))
+	{
+		return FILE_UNMAPPING_ERROR;
+	}
 	return SUCCESS;
 }
 

@@ -31,6 +31,9 @@ PrintErrorCode(
 		case FILE_MAPPING_ERROR:
 			ReportError(_T("Could not map file."), 0, FALSE);
 			break;
+		case FILE_UNMAPPING_ERROR:
+			ReportError(_T("Could not unmap file."), 0, FALSE);
+			break;
 		case MAP_VIEW_ERROR:
 			ReportError(_T("Could not map view of file"), 0, FALSE);
 			break;
